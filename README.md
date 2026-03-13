@@ -1,16 +1,57 @@
-# React + Vite
+# Bengaluru Metro Intelligence Map
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive data visualization of BMRCL metro ridership patterns across Bengaluru. Built with real August 2025 ridership data acquired via RTI from BMRCL.
 
-Currently, two official plugins are available:
+## Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**[View the map →](https://03shraddha.github.io/BLR-METRO/)**
 
-## React Compiler
+> If the link isn't live yet, run `npm run deploy` to publish to GitHub Pages.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What It Shows
 
-## Expanding the ESLint configuration
+The map has five story chapters, selectable from the top-left panel:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Layer | What you see |
+|---|---|
+| **Where people move** | Station circles sized and colored by ridership volume at each hour — play the time slider to watch the city breathe through the day |
+| **Job hubs vs home zones** | Diverging color scale (blue = residential origin, red = job destination) showing which stations are net sources vs. sinks of passengers |
+| **Passenger flows** | Top 15 origin-destination corridors as arcs — thickness and brightness encode passenger volume |
+| **Weekday vs weekend** | Toggle between Mon–Fri and Sat–Sun patterns to see how the city moves differently |
+| **Coverage gaps** | Population density heatmap overlaid with 500m station catchment rings — red showing through = underserved area |
+
+## Data
+
+- **Source:** [BMRCL Station-Wise Ridership Data](https://data.opencity.in/dataset/bmrcl-station-wise-ridership-data) via OpenCity India
+- **Period:** August 2025
+- **Coverage:** 83 stations across Purple, Green, and Yellow lines
+- **Metro geometry:** Real OSM line traces from OpenStreetMap (Overpass API)
+
+Raw data files (`hourly_ridership.xlsx`, `hourly_entry_exit.xlsx`) are processed by `scripts/process_bmrcl_data.py` into the JSON files under `public/data/`.
+
+## Running Locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173/bangalore-metro/](http://localhost:5173/bangalore-metro/)
+
+## Deploying
+
+```bash
+npm run build
+npm run deploy
+```
+
+This builds to `dist/` and pushes to the `gh-pages` branch. The live site updates within a minute.
+
+## Tech Stack
+
+- **React + Vite** — UI and build
+- **Deck.gl v9** — WebGL map layers with smooth transitions
+- **MapLibre GL** — Dark base map tiles (OpenFreeMap, no API key needed)
+- **Tailwind CSS v4** — Glassmorphism floating controls
+- **d3-scale / d3-ease** — Data scaling and animation easing
+- **Python + pandas** — Data pipeline from XLSX to JSON
