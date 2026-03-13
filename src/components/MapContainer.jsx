@@ -17,6 +17,8 @@ export default function MapContainer({
   hour,
   weekdayWeekendMode,
   playing,
+  zoom,
+  odTopN,
   onHover,
   onStationClick,
   onZoomChange,
@@ -83,6 +85,14 @@ export default function MapContainer({
     [data]
   )
 
+  // Zoom-based aggregation: show fewer arcs at city-wide zoom, more when zoomed in
+  const effectiveTopN = useMemo(() => {
+    const n = odTopN ?? 15
+    if (zoom < 11) return Math.min(n, 8)
+    if (zoom > 13) return Math.min(n * 2, 50)
+    return n
+  }, [zoom, odTopN])
+
   // Rebuild layers on every relevant state change
   useEffect(() => {
     if (!overlayRef.current || !data) return
@@ -94,8 +104,9 @@ export default function MapContainer({
 
     const volumeLayers    = buildVolumeLayers(stations, hour, activeLayer === 'volume', maxRidership)
     const entryExitLayer  = buildEntryExitLayer(stations, hour, activeLayer === 'entryExit')
-    const odLayers        = buildOdFlowLayer(stations, odFlows, activeLayer === 'odFlow', flowOffsetRef.current)
-    const wdwLayer        = buildWeekdayWeekendLayer(stations, weekday, weekend, weekdayWeekendMode, activeLayer === 'weekdayWeekend')
+    const odLayers        = buildOdFlowLayer(stations, odFlows, activeLayer === 'odFlow', flowOffsetRef.current, effectiveTopN)
+    // buildWeekdayWeekendLayer now returns an array; flatten with concat
+    const wdwLayers       = [].concat(buildWeekdayWeekendLayer(stations, weekday, weekend, weekdayWeekendMode, activeLayer === 'weekdayWeekend'))
     const coverageLayers  = buildCoverageGapLayers(stations, populationGrid, activeLayer === 'coverageGap')
 
     const allLayers = [
@@ -103,7 +114,7 @@ export default function MapContainer({
       ...volumeLayers,
       entryExitLayer,
       ...odLayers,
-      wdwLayer,
+      ...wdwLayers,
       ...coverageLayers,
     ].filter(Boolean)
 
@@ -115,7 +126,7 @@ export default function MapContainer({
     )
 
     overlayRef.current.setProps({ layers: withCallbacks })
-  }, [data, activeLayer, hour, weekdayWeekendMode, maxRidership, onHover, onStationClick])
+  }, [data, activeLayer, hour, weekdayWeekendMode, maxRidership, effectiveTopN, onHover, onStationClick])
 
   return <div ref={mapContainerRef} className="absolute inset-0" />
 }

@@ -3,6 +3,8 @@ import MapContainer from './components/MapContainer'
 import LayerTabs from './components/LayerTabs'
 import TimeSlider from './components/TimeSlider'
 import WeekdayToggle from './components/WeekdayToggle'
+import OdFlowControls from './components/OdFlowControls'
+import DataTable from './components/DataTable'
 import Tooltip from './components/Tooltip'
 import Legend from './components/Legend'
 import StationPanel from './components/StationPanel'
@@ -15,6 +17,7 @@ export default function App() {
 
   const [activeLayer, setActiveLayer] = useState('volume')
   const [weekdayWeekendMode, setWeekdayWeekendMode] = useState('weekday')
+  const [odTopN, setOdTopN] = useState(15)
   const [tooltipInfo, setTooltipInfo] = useState(null)
   const [selectedStation, setSelectedStation] = useState(null)
   const [zoom, setZoom] = useState(11.2)
@@ -58,6 +61,8 @@ export default function App() {
           hour={hour}
           playing={playing}
           weekdayWeekendMode={weekdayWeekendMode}
+          zoom={zoom}
+          odTopN={odTopN}
           onHover={handleHover}
           onStationClick={handleStationClick}
           onZoomChange={handleZoomChange}
@@ -76,10 +81,28 @@ export default function App() {
       {/* Layer story chapter tabs */}
       <LayerTabs activeLayer={activeLayer} setActiveLayer={setActiveLayer} />
 
-      {/* Weekday / weekend sub-toggle */}
+      {/* Weekday / weekend / delta / compare sub-toggle */}
       <WeekdayToggle
         mode={weekdayWeekendMode}
         setMode={setWeekdayWeekendMode}
+        activeLayer={activeLayer}
+      />
+
+      {/* Data table — adapts to whichever layer is active */}
+      <DataTable
+        data={data}
+        activeLayer={activeLayer}
+        hour={hour}
+        weekdayWeekendMode={weekdayWeekendMode}
+        odTopN={odTopN}
+        selectedStation={selectedStation}
+        onStationClick={handleStationClick}
+      />
+
+      {/* OD flow top-N slider */}
+      <OdFlowControls
+        topN={odTopN}
+        setTopN={setOdTopN}
         activeLayer={activeLayer}
       />
 

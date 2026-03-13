@@ -1,27 +1,57 @@
+const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
+
+const SEGMENT_STYLES = {
+  weekday: { bg: 'rgba(59,130,246,0.22)', text: 'rgba(147,197,253,0.95)' },
+  weekend: { bg: 'rgba(168,85,247,0.22)', text: 'rgba(216,180,254,0.95)' },
+  delta:   { bg: 'rgba(245,158,11,0.22)', text: 'rgba(252,211,77,0.95)' },
+  compare: { bg: 'rgba(20,184,166,0.22)', text: 'rgba(94,234,212,0.95)' },
+}
+
 export default function WeekdayToggle({ mode, setMode, activeLayer }) {
   if (activeLayer !== 'weekdayWeekend') return null
 
+  const buttons = [
+    { id: 'weekday',  label: 'Weekday'  },
+    { id: 'weekend',  label: 'Weekend'  },
+    { id: 'delta',    label: 'Delta'    },
+    { id: 'compare',  label: 'Compare'  },
+  ]
+
   return (
     <div
-      className="absolute top-4 right-4 z-10 flex rounded-xl overflow-hidden border border-white/15"
-      style={{ backdropFilter: 'blur(12px)', background: 'rgba(0,0,0,0.4)' }}
+      className="absolute top-4 right-4 z-10 flex rounded-2xl p-1 gap-0.5"
+      style={{
+        backdropFilter: 'blur(28px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
+        background: 'rgba(18,18,22,0.78)',
+        boxShadow: '0 2px 24px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(255,255,255,0.08)',
+        fontFamily: IOS_FONT,
+      }}
     >
-      {['weekday', 'weekend'].map(m => (
-        <button
-          key={m}
-          onClick={() => setMode(m)}
-          className={[
-            'px-5 py-2.5 text-lg font-medium tracking-wide transition-all duration-200 cursor-pointer',
-            mode === m
-              ? m === 'weekday'
-                ? 'bg-blue-500/30 text-blue-200'
-                : 'bg-purple-500/30 text-purple-200'
-              : 'text-white/40 hover:text-white/70',
-          ].join(' ')}
-        >
-          {m === 'weekday' ? 'Weekday' : 'Weekend'}
-        </button>
-      ))}
+      {buttons.map(b => {
+        const isActive = mode === b.id
+        const style = SEGMENT_STYLES[b.id]
+        return (
+          <button
+            key={b.id}
+            onClick={() => setMode(b.id)}
+            className="transition-all duration-200 cursor-pointer rounded-xl"
+            style={{
+              padding: '9px 18px',
+              background: isActive ? style.bg : 'transparent',
+              color: isActive ? style.text : 'rgba(255,255,255,0.35)',
+              fontSize: 16,
+              fontWeight: isActive ? 600 : 400,
+              letterSpacing: '-0.01em',
+              boxShadow: isActive ? 'inset 0 0 0 0.5px rgba(255,255,255,0.12)' : 'none',
+              outline: 'none',
+              border: 'none',
+            }}
+          >
+            {b.label}
+          </button>
+        )
+      })}
     </div>
   )
 }

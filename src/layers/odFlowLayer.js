@@ -1,8 +1,8 @@
 import { ArcLayer, ScatterplotLayer } from '@deck.gl/layers'
 import { scaleLinear, scalePow } from 'd3-scale'
 
-// Returns [anchorLayer, arcLayer]
-export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0) {
+// Returns [anchorLayer, corridorArcLayer, regularArcLayer]
+export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, topN = 15) {
   const posMap = {}
   const stationMap = {}
   for (const s of stations) {
@@ -10,23 +10,31 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0) {
     stationMap[s.properties.id] = s
   }
 
-  // Top 15 — show only the dominant corridors. More = noise.
   const validFlows = odFlows
     .filter(f => posMap[f.from] && posMap[f.to])
-    .slice(0, 15)
+    .slice(0, topN)
 
   const maxVol = Math.max(...validFlows.map(f => f.volume), 1)
 
-  // Aggressive linear width: top corridor is unmistakably thick
   const widthScale = scalePow().exponent(0.6).domain([0, maxVol]).range([1.5, 14]).clamp(true)
-
-  // Flat arcs — keep them close to the metro lines so flows read as on-network
   const heightScale = scaleLinear().domain([0, maxVol]).range([0.04, 0.18]).clamp(true)
-
-  // Volume-driven opacity: low flows are faint, top flows are vivid
   const opacityScale = scalePow().exponent(0.7).domain([0, maxVol]).range([50, 220]).clamp(true)
 
-  // Collect unique station IDs that appear in the top flows
+  // Top 3 flows by volume are "corridors" — rendered distinctly in gold
+  const corridorSet = new Set(
+    [...validFlows]
+      .sort((a, b) => b.volume - a.volume)
+      .slice(0, 3)
+      .map((_, i) => i) // indices within validFlows after sort
+  )
+  // Instead mark by volume threshold: top-3 volumes
+  const sortedVols = [...validFlows].sort((a, b) => b.volume - a.volume).map(f => f.volume)
+  const corridorThreshold = sortedVols[Math.min(2, sortedVols.length - 1)] ?? 0
+
+  const corridorFlows = validFlows.filter(f => f.volume >= corridorThreshold)
+  const regularFlows  = validFlows.filter(f => f.volume < corridorThreshold)
+
+  // Collect unique station IDs that appear in all flows
   const anchorIds = new Set()
   for (const f of validFlows) {
     anchorIds.add(f.from)
@@ -50,7 +58,6 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0) {
     opacity: isActive ? 1.0 : 0,
     transitions: { opacity: { duration: 600 } },
     getPosition: d => d.geometry.coordinates,
-    // Busier stations get slightly larger anchors
     getRadius: d => 120 + (flowCount[d.properties.id] || 1) * 60,
     getFillColor: [255, 255, 255, 220],
     stroked: true,
@@ -60,23 +67,51 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0) {
     pickable: true,
   })
 
-  // Flow arcs — single color family (amber→white) scaled by volume.
-  // Both ends share the same base color; flowOffset shifts brightness to
-  // suggest directionality without introducing a confusing second color.
-  const arcLayer = new ArcLayer({
-    id: 'od-flows',
-    data: validFlows,
+  // Corridor arcs — top-3 flows in bright gold to highlight dominant routes
+  const corridorArcLayer = new ArcLayer({
+    id: 'od-corridors',
+    data: corridorFlows,
     opacity: isActive ? 1.0 : 0,
     transitions: { opacity: { duration: 600 } },
     getSourcePosition: d => posMap[d.from],
     getTargetPosition: d => posMap[d.to],
-    // Source (departure end): warm amber
+    getSourceColor: d => {
+      const a = Math.min(opacityScale(d.volume) + 30, 255)
+      const pulse = Math.round(flowOffset) % 2 === 0 ? 20 : 0
+      return [255, Math.min(215 + pulse, 255), Math.min(0 + pulse, 60), a]
+    },
+    getTargetColor: d => {
+      const a = Math.min(opacityScale(d.volume) + 30, 255)
+      const pulse = Math.round(flowOffset) % 2 === 1 ? 20 : 0
+      return [255, Math.min(255, 255), Math.min(120 + pulse, 200), a]
+    },
+    // Corridors are 40% wider than regular flows for visual dominance
+    getWidth: d => widthScale(d.volume) * 1.4,
+    getHeight: d => heightScale(d.volume),
+    widthUnits: 'pixels',
+    widthMinPixels: 2,
+    widthMaxPixels: 20,
+    greatCircle: false,
+    pickable: true,
+    updateTriggers: {
+      getSourceColor: [flowOffset],
+      getTargetColor: [flowOffset],
+    },
+  })
+
+  // Regular flow arcs — amber palette, lower visual weight
+  const regularArcLayer = new ArcLayer({
+    id: 'od-flows-rest',
+    data: regularFlows,
+    opacity: isActive ? 1.0 : 0,
+    transitions: { opacity: { duration: 600 } },
+    getSourcePosition: d => posMap[d.from],
+    getTargetPosition: d => posMap[d.to],
     getSourceColor: d => {
       const a = opacityScale(d.volume)
       const pulse = Math.round(flowOffset) % 2 === 0 ? 30 : 0
       return [255, Math.min(160 + pulse, 255), 40, a]
     },
-    // Target (arrival end): brighter, slightly cooler — encodes directionality
     getTargetColor: d => {
       const a = opacityScale(d.volume)
       const pulse = Math.round(flowOffset) % 2 === 1 ? 30 : 0
@@ -95,5 +130,5 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0) {
     },
   })
 
-  return [anchorLayer, arcLayer]
+  return [anchorLayer, corridorArcLayer, regularArcLayer]
 }

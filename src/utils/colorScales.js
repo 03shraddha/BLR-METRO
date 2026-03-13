@@ -64,6 +64,8 @@ export const LAYER_LEGENDS = {
     minLabel: 'Low',
     maxLabel: 'High',
     weekendGradient: 'linear-gradient(to right, rgba(180,30,200,0.2), rgba(180,30,200,1))',
+    // Delta mode: blue = weekday dominant, purple = weekend dominant
+    deltaGradient: 'linear-gradient(to right, rgba(30,100,220,0.9), rgba(255,255,255,0.3), rgba(180,30,200,0.9))',
   },
   coverageGap: {
     label: 'Population density',

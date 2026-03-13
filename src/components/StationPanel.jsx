@@ -1,89 +1,97 @@
 import { buildSparkline, formatHour } from '../utils/dataTransforms'
 
+const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
+
 export default function StationPanel({ station, onClose }) {
   const visible = !!station
-
   if (!station && !visible) return null
 
-  const props = station?.properties || {}
+  const props    = station?.properties || {}
   const sparkline = station ? buildSparkline(station) : []
-  const maxVal = Math.max(...sparkline, 1)
+  const maxVal   = Math.max(...sparkline, 1)
 
   const W = 200
-  const H = 56
+  const H = 52
 
-  // Build SVG polyline points
   const points = sparkline.map((v, i) => {
     const px = (i / 23) * W
     const py = H - (v / maxVal) * H
     return `${px},${py}`
   }).join(' ')
 
-  // Find peak hour
   const peakHour = sparkline.indexOf(Math.max(...sparkline))
 
   return (
     <div
-      className={`station-panel absolute top-0 right-0 h-full z-20 w-72 border-l border-white/10 flex flex-col ${visible ? 'visible' : 'hidden'}`}
-      style={{ backdropFilter: 'blur(20px)', background: 'rgba(0,0,0,0.65)' }}
+      className={`absolute top-0 right-0 h-full z-20 flex flex-col ${visible ? '' : 'hidden'}`}
+      style={{
+        width: 288,
+        backdropFilter: 'blur(28px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
+        background: 'rgba(15,15,20,0.84)',
+        boxShadow: '-1px 0 0 0 rgba(255,255,255,0.07)',
+        fontFamily: IOS_FONT,
+      }}
     >
       {/* Header */}
-      <div className="flex items-start justify-between px-5 pt-6 pb-4 border-b border-white/10">
-        <div>
-          <h2 className="text-white font-semibold text-xl leading-tight">
-            {props.name || 'Station'}
-          </h2>
-          {props.line && (
-            <span className="text-white/40 text-base mt-1 block">
-              {capitalize(props.line)} Line
-            </span>
-          )}
+      <div style={{ padding: '24px 20px 16px', borderBottom: '0.5px solid rgba(255,255,255,0.08)' }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(255,255,255,0.95)', lineHeight: 1.2, margin: 0 }}>
+              {props.name || 'Station'}
+            </h2>
+            {props.line && (
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', marginTop: 4, display: 'block' }}>
+                {capitalize(props.line)} Line
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="cursor-pointer"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.08)',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(255,255,255,0.5)',
+              flexShrink: 0,
+              marginTop: 2,
+            }}
+          >
+            <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="text-white/40 hover:text-white/80 transition-colors mt-0.5 cursor-pointer"
-        >
-          <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
       </div>
 
       {/* Sparkline */}
-      <div className="px-5 pt-5">
-        <div className="text-white/40 text-sm uppercase tracking-wide mb-3">
+      <div style={{ padding: '18px 20px 0' }}>
+        <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.32)', marginBottom: 10 }}>
           Daily ridership pattern
-        </div>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          className="w-full"
-          style={{ height: 56 }}
-        >
-          {/* Subtle grid lines */}
+        </p>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H }}>
           {[0.25, 0.5, 0.75].map(f => (
-            <line
-              key={f}
-              x1={0} y1={H * (1 - f)} x2={W} y2={H * (1 - f)}
-              stroke="rgba(255,255,255,0.05)"
-              strokeWidth={1}
-            />
+            <line key={f} x1={0} y1={H * (1 - f)} x2={W} y2={H * (1 - f)} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
           ))}
-          {/* Fill area */}
           <polyline
             points={`0,${H} ${points} ${W},${H}`}
-            fill="rgba(255,140,0,0.12)"
+            fill="rgba(255,140,0,0.10)"
             stroke="none"
           />
-          {/* Line */}
           <polyline
             points={points}
             fill="none"
-            stroke="rgba(255,140,0,0.8)"
+            stroke="rgba(255,140,0,0.75)"
             strokeWidth={1.5}
             strokeLinejoin="round"
           />
-          {/* Peak dot */}
           {sparkline.length > 0 && (
             <circle
               cx={(peakHour / 23) * W}
@@ -93,33 +101,32 @@ export default function StationPanel({ station, onClose }) {
             />
           )}
         </svg>
-        {/* Hour labels */}
-        <div className="flex justify-between text-xs text-white/25 mt-1">
+        <div className="flex justify-between" style={{ marginTop: 4 }}>
           {[0, 6, 12, 18, 23].map(h => (
-            <span key={h}>{formatHour(h)}</span>
+            <span key={h} style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)' }}>{formatHour(h)}</span>
           ))}
         </div>
         {sparkline.length > 0 && (
-          <div className="text-white/40 text-base mt-3">
-            Peak: <span className="text-orange-400">{formatHour(peakHour)}</span>
-          </div>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 10 }}>
+            Peak: <span style={{ color: 'rgba(251,146,60,0.9)', fontWeight: 600 }}>{formatHour(peakHour)}</span>
+          </p>
         )}
       </div>
 
-      {/* Stats grid */}
+      {/* Stats */}
       {station?.ridership && (
-        <div className="px-5 pt-5">
-          <div className="text-white/40 text-sm uppercase tracking-wide mb-3">
+        <div style={{ padding: '16px 20px 0' }}>
+          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.32)', marginBottom: 10 }}>
             Daily totals
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[
               { label: 'Total boardings', value: sparkline.reduce((a, b) => a + b, 0) },
               { label: 'Peak hour', value: formatHour(peakHour) },
             ].map(({ label, value }) => (
-              <div key={label} className="bg-white/5 rounded-xl p-3">
-                <div className="text-white/30 text-sm mb-1">{label}</div>
-                <div className="text-white text-lg font-medium">
+              <div key={label} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.92)' }}>
                   {typeof value === 'number' ? fmt(value) : value}
                 </div>
               </div>
@@ -128,9 +135,9 @@ export default function StationPanel({ station, onClose }) {
         </div>
       )}
 
-      {/* Data note */}
-      <div className="mt-auto px-5 pb-5 text-white/20 text-sm border-t border-white/10 pt-4">
-        Data: BMRCL August 2025 (RTI)
+      {/* Footer */}
+      <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '0.5px solid rgba(255,255,255,0.07)' }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', margin: 0 }}>Data: BMRCL August 2025 (RTI)</p>
       </div>
     </div>
   )
@@ -143,6 +150,6 @@ function capitalize(s) {
 function fmt(n) {
   if (!n) return '0'
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`
+  if (n >= 1000)    return `${(n / 1000).toFixed(1)}k`
   return String(n)
 }
