@@ -13,40 +13,92 @@ function haverDist([lng1, lat1], [lng2, lat2]) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-// Hardcoded key annotations for Bengaluru
-const ANNOTATIONS = [
+// Hardcoded fallback labels for known Bengaluru gap zones (used when dynamic clustering
+// doesn't find a better name for a cluster centroid near these coordinates)
+const KNOWN_LABELS = [
   { position: [77.748, 12.974], text: 'Whitefield: dense IT hub\nfar from nearest station', align: 'left' },
   { position: [77.579, 12.900], text: 'South Bengaluru gap:\nhigh density, sparse coverage', align: 'left' },
-  { position: [77.576, 12.977], text: 'CBD: overserved cluster', align: 'right' },
   { position: [77.675, 12.847], text: 'Electronic City:\nno metro coverage', align: 'left' },
 ]
+
+// Find the nearest known label within ~1.5km of a centroid; returns label text or null
+function nearestKnownLabel(centroid) {
+  for (const label of KNOWN_LABELS) {
+    if (haverDist(label.position, centroid) < 1500) return label
+  }
+  return null
+}
+
+// Cluster gap cells into groups ~1km apart (greedy) and return top N by total severity weight
+function topGapClusters(gapCells, n = 3, clusterRadius = 1000) {
+  // Sort cells by their individual severity weight descending so we seed clusters on peaks
+  const sorted = [...gapCells].sort((a, b) => b.severityWeight - a.severityWeight)
+  const clusters = []
+
+  for (const cell of sorted) {
+    // Check if this cell already belongs to an existing cluster
+    const existing = clusters.find(c => haverDist(c.centroid, cell.position) <= clusterRadius)
+    if (existing) {
+      existing.totalWeight += cell.severityWeight
+      existing.cells.push(cell)
+      // Recompute weighted centroid incrementally
+      const w = existing.totalWeight
+      existing.centroid = [
+        existing.centroid[0] + (cell.position[0] - existing.centroid[0]) * (cell.severityWeight / w),
+        existing.centroid[1] + (cell.position[1] - existing.centroid[1]) * (cell.severityWeight / w),
+      ]
+    } else {
+      clusters.push({ centroid: cell.position, totalWeight: cell.severityWeight, cells: [cell] })
+    }
+  }
+
+  // Return top N clusters by accumulated severity weight
+  return clusters
+    .sort((a, b) => b.totalWeight - a.totalWeight)
+    .slice(0, n)
+}
 
 export function buildCoverageGapLayers(stations, populationGrid, isActive, catchmentRadius = 500, isMobile = false) {
   // Slightly thicker catchment ring strokes on mobile for legibility on high-DPI screens
   const mobileScale = isMobile ? 1.5 : 1
   const stationPositions = stations.map(s => s.geometry.coordinates)
 
-  // Split grid cells into covered vs gap
+  // Graduated coverage: instead of binary covered/gap, compute how far each cell
+  // is from its nearest station as a fraction of the catchment radius.
   const DENSITY_THRESHOLD = 0.12  // ignore very sparse cells
   const gapCells = []
   const coveredCells = []
 
   for (const cell of populationGrid) {
     if (cell.weight < DENSITY_THRESHOLD) continue
-    const covered = stationPositions.some(pos => haverDist(pos, cell.position) <= catchmentRadius)
-    if (covered) coveredCells.push(cell)
-    else gapCells.push(cell)
+
+    // Distance to nearest station
+    const minDist = Math.min(...stationPositions.map(pos => haverDist(pos, cell.position)))
+
+    // coverageScore: 1.0 = directly at a station, 0 = far outside catchment
+    const coverageScore = Math.max(0, 1 - (minDist / catchmentRadius) ** 1.5)
+    const gapSeverity = 1 - coverageScore  // 0 = no gap, 1 = full gap
+
+    // Skip cells that are barely outside coverage — removes the sharp binary edge
+    if (gapSeverity <= 0.15) {
+      coveredCells.push(cell)
+      continue
+    }
+
+    // Attach severity so downstream code can weight heatmap and cluster annotations
+    gapCells.push({ ...cell, gapSeverity, severityWeight: cell.weight * gapSeverity })
   }
 
-  // Gap heatmap — smooth red gradient over uncovered high-density areas
-  // HeatmapLayer blends cells naturally so no "dot carpet" effect
+  // Gap heatmap — smooth red gradient over uncovered high-density areas.
+  // Uses severityWeight (population × gap severity) so cells barely outside the
+  // catchment radius contribute much less heat than cells far from any station.
   const gapLayer = new HeatmapLayer({
     id: 'coverage-gap-heatmap',
     data: gapCells,
     opacity: isActive ? 0.72 : 0,
     transitions: { opacity: { duration: 600 } },
     getPosition: d => d.position,
-    getWeight: d => d.weight,
+    getWeight: d => d.severityWeight,
     radiusPixels: 45,
     intensity: 1.4,
     threshold: 0.04,
@@ -77,10 +129,21 @@ export function buildCoverageGapLayers(stations, populationGrid, isActive, catch
     pickable: false,
   })
 
-  // Annotation callouts — key insight labels on the map
+  // Dynamic annotation callouts — find top-3 highest-severity gap clusters and label them.
+  // Falls back to known neighborhood names when a cluster centroid is near a hardcoded label.
+  const topClusters = topGapClusters(gapCells, 3, 1000)
+  const dynamicAnnotations = topClusters.map(cluster => {
+    const known = nearestKnownLabel(cluster.centroid)
+    return {
+      position: cluster.centroid,
+      text: known ? known.text : 'High Gap Zone',
+      align: known ? known.align : 'left',
+    }
+  })
+
   const annotationLayer = new TextLayer({
     id: 'coverage-annotations',
-    data: ANNOTATIONS,
+    data: dynamicAnnotations,
     opacity: isActive ? 1 : 0,
     transitions: { opacity: { duration: 600 } },
     getPosition: d => d.position,
@@ -97,6 +160,7 @@ export function buildCoverageGapLayers(stations, populationGrid, isActive, catch
     pickable: false,
     parameters: { depthTest: false },
     lineHeight: 1.4,
+    updateTriggers: { getText: [catchmentRadius], getPosition: [catchmentRadius] },
   })
 
   return [gapLayer, catchmentLayer, annotationLayer]

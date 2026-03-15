@@ -1,7 +1,7 @@
 import { useEffect, useRef, useMemo, useCallback } from 'react'
 import maplibregl from 'maplibre-gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { findMaxRidership } from '../utils/dataTransforms'
+import { findMaxRidership, getRidershipAtHour } from '../utils/dataTransforms'
 import { buildVolumeLayers } from '../layers/volumeLayer'
 import { buildEntryExitLayer } from '../layers/entryExitLayer'
 import { buildOdFlowLayer } from '../layers/odFlowLayer'
@@ -113,6 +113,23 @@ export default function MapContainer({
     [data]
   )
 
+  // Aggregate per-line ridership at the current hour so metro line widths
+  // reflect actual passenger volumes (busier lines render thicker).
+  const lineStats = useMemo(() => {
+    if (!data?.stations) return null
+    const totals = {}
+    for (const s of data.stations) {
+      const line = s.properties?.line
+      if (!line) continue
+      const { total } = getRidershipAtHour(s, hour)
+      totals[line] = (totals[line] || 0) + total
+    }
+    const maxLine = Math.max(...Object.values(totals), 1)
+    return Object.fromEntries(
+      Object.entries(totals).map(([k, v]) => [k, v / maxLine])
+    )
+  }, [data?.stations, hour])
+
   // Zoom-based aggregation: show fewer arcs at city-wide zoom, more when zoomed in
   const effectiveTopN = useMemo(() => {
     const n = odTopN ?? 15
@@ -128,10 +145,10 @@ export default function MapContainer({
     const { stations, weekday, weekend, odFlows, populationGrid, metroLines } = data
     const isDataActive = true // a data layer is always shown
 
-    const metroLinesLayer = buildMetroLinesLayer(metroLines, isDataActive, isMobile)
+    const metroLinesLayer = buildMetroLinesLayer(metroLines, isDataActive, isMobile, lineStats)
 
     const volumeLayers    = buildVolumeLayers(stations, hour, activeLayer === 'volume', maxRidership, isMobile)
-    const entryExitLayer  = buildEntryExitLayer(stations, hour, activeLayer === 'entryExit')
+    const entryExitLayer  = buildEntryExitLayer(stations, hour, activeLayer === 'entryExit', maxRidership)
     const odLayers        = buildOdFlowLayer(stations, odFlows, activeLayer === 'odFlow', flowOffsetRef.current, effectiveTopN, isMobile)
     // buildWeekdayWeekendLayer now returns an array; flatten with concat
     const wdwLayers       = [].concat(buildWeekdayWeekendLayer(stations, weekday, weekend, weekdayWeekendMode, activeLayer === 'weekdayWeekend', wdwTopN, isMobile))
@@ -154,7 +171,7 @@ export default function MapContainer({
     )
 
     overlayRef.current.setProps({ layers: withCallbacks })
-  }, [data, activeLayer, hour, weekdayWeekendMode, maxRidership, effectiveTopN, wdwTopN, catchmentRadius, onHover, onStationClick, isMobile])
+  }, [data, activeLayer, hour, weekdayWeekendMode, maxRidership, lineStats, effectiveTopN, wdwTopN, catchmentRadius, onHover, onStationClick, isMobile])
 
   return (
     <div className="absolute inset-0" style={{ touchAction: 'manipulation' }}>
