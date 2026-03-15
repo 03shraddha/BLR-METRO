@@ -3,42 +3,52 @@ import { enrichStations } from '../utils/dataTransforms'
 
 const BASE = import.meta.env.BASE_URL
 
+// Helper: fetch a URL and throw a descriptive error if the response is not ok
+async function fetchJson(url) {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Failed to load ${url} — HTTP ${response.status}`)
+  }
+  return response.json()
+}
+
 export function useMetroData() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [partialLoad, setPartialLoad] = useState(true) // true until tier-2 data is also ready
   const [error, setError] = useState(null)
 
   useEffect(() => {
     async function load() {
       try {
-        const [stationsRes, hourlyRes, weekdayRes, weekendRes, odRes, popRes, linesRes] =
-          await Promise.all([
-            fetch(`${BASE}data/stations.geojson`),
-            fetch(`${BASE}data/ridership_hourly.json`),
-            fetch(`${BASE}data/ridership_weekday.json`),
-            fetch(`${BASE}data/ridership_weekend.json`),
-            fetch(`${BASE}data/od_flows.json`),
-            fetch(`${BASE}data/population_grid.json`),
-            fetch(`${BASE}data/metro_lines.json`),
-          ])
+        // --- Tier 1: critical data — stations + lines make the map immediately usable ---
+        const [stationsGeo, metroLines] = await Promise.all([
+          fetchJson(`${BASE}data/stations.geojson`),
+          fetchJson(`${BASE}data/metro_lines.json`),
+        ])
 
-        const [stationsGeo, hourly, weekday, weekend, odFlows, populationGrid, metroLines] =
-          await Promise.all([
-            stationsRes.json(),
-            hourlyRes.json(),
-            weekdayRes.json(),
-            weekendRes.json(),
-            odRes.json(),
-            popRes.json(),
-            linesRes.json(),
-          ])
+        // Enrich stations with an empty hourly stub so the map can render right away
+        const stationsPartial = enrichStations(stationsGeo, [])
 
+        setData({ stations: stationsPartial, stationsGeo, metroLines })
+        setLoading(false) // map is renderable; tier-2 still loading
+
+        // --- Tier 2: deferred analytics data ---
+        const [hourly, weekday, weekend, odFlows, populationGrid] = await Promise.all([
+          fetchJson(`${BASE}data/ridership_hourly.json`),
+          fetchJson(`${BASE}data/ridership_weekday.json`),
+          fetchJson(`${BASE}data/ridership_weekend.json`),
+          fetchJson(`${BASE}data/od_flows.json`),
+          fetchJson(`${BASE}data/population_grid.json`),
+        ])
+
+        // Re-enrich stations now that we have the full hourly dataset
         const stations = enrichStations(stationsGeo, hourly)
 
         setData({ stations, stationsGeo, hourly, weekday, weekend, odFlows, populationGrid, metroLines })
+        setPartialLoad(false)
       } catch (err) {
         setError(err.message)
-      } finally {
         setLoading(false)
       }
     }
@@ -46,5 +56,5 @@ export function useMetroData() {
     load()
   }, [])
 
-  return { data, loading, error }
+  return { data, loading, partialLoad, error }
 }
