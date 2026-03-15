@@ -59,6 +59,7 @@ function topGapClusters(gapCells, n = 3, clusterRadius = 1000) {
 }
 
 export function buildCoverageGapLayers(stations, populationGrid, isActive, catchmentRadius = 500, isMobile = false) {
+  if (!populationGrid) return []
   // Slightly thicker catchment ring strokes on mobile for legibility on high-DPI screens
   const mobileScale = isMobile ? 1.5 : 1
   const stationPositions = stations.map(s => s.geometry.coordinates)

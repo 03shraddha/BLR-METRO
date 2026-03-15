@@ -13,7 +13,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
 
   // Use pre-enriched flows when available, otherwise fall back to raw data.
   // Enriched flows carry bidirectional pair metadata (isPrimary, returnRatio, netFlow).
-  const flowSource = enrichedFlows || odFlows
+  const flowSource = enrichedFlows || odFlows || []
   const posMap = {}
   const stationMap = {}
   for (const s of stations) {

@@ -170,7 +170,7 @@ export default function App() {
             setActiveLayer={setActiveLayer}
             toggleTheme={toggleTheme}
             theme={theme}
-            onBusyOpen={data?.stations ? () => setBusyOpen(true) : undefined}
+            onBusyOpen={() => setBusyOpen(true)}
           />
 
           {/* Weekday / weekend / delta / compare sub-toggle */}
@@ -214,7 +214,7 @@ export default function App() {
             stations={data?.stations}
             populationGrid={data?.populationGrid}
             catchmentRadius={catchmentRadius}
-            isActive={activeLayer === 'coverage'}
+            isActive={activeLayer === 'coverageGap'}
           />
 
           {/* Weekday/weekend top-N stations slider */}
