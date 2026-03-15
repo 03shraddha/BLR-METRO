@@ -29,7 +29,7 @@ export default function WeekdayControls({ topN, setTopN, activeLayer }) {
       )}
 
       {/* Value */}
-      <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(120,160,255,0.95)', width: 52, textAlign: 'right', flexShrink: 0 }}>
+      <span style={{ fontSize: isMobile ? 16 : 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(120,160,255,0.95)', width: isMobile ? 32 : 52, textAlign: 'right', flexShrink: 0 }}>
         {topN}
       </span>
 

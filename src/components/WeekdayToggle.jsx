@@ -1,3 +1,5 @@
+import { useIsMobile } from '../hooks/useIsMobile'
+
 const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
 
 const SEGMENT_STYLES = {
@@ -8,6 +10,7 @@ const SEGMENT_STYLES = {
 }
 
 export default function WeekdayToggle({ mode, setMode, activeLayer }) {
+  const isMobile = useIsMobile()
   if (activeLayer !== 'weekdayWeekend') return null
 
   const buttons = [
@@ -19,8 +22,13 @@ export default function WeekdayToggle({ mode, setMode, activeLayer }) {
 
   return (
     <div
-      className="absolute top-4 right-4 z-10 flex rounded-2xl p-1 gap-0.5"
+      className="absolute z-10 flex rounded-2xl p-1 gap-0.5"
       style={{
+        // On mobile: centered below the hamburger; on desktop: top-right
+        top: isMobile ? 68 : 16,
+        left: isMobile ? '50%' : 'auto',
+        right: isMobile ? 'auto' : 16,
+        transform: isMobile ? 'translateX(-50%)' : 'none',
         backdropFilter: 'blur(28px) saturate(1.6)',
         WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
         background: 'var(--panel-bg)',
@@ -37,8 +45,8 @@ export default function WeekdayToggle({ mode, setMode, activeLayer }) {
             onClick={() => setMode(b.id)}
             className="transition-all duration-200 cursor-pointer rounded-xl"
             style={{
-              padding: '9px 18px',
-              minHeight: 44,
+              padding: isMobile ? '7px 14px' : '9px 18px',
+              minHeight: 40,
               display: 'flex',
               alignItems: 'center',
               background: isActive ? style.bg : 'transparent',
