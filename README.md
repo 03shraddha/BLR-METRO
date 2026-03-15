@@ -4,7 +4,7 @@ An interactive data visualization of BMRCL metro ridership patterns across Benga
 
 ## Live Demo
 
-### [Try it live → 03shraddha.github.io/BLR-METRO](https://03shraddha.github.io/BLR-METRO/)
+### [Try it live → 03shraddha.github.io/blr-metro](https://03shraddha.github.io/blr-metro/)
 
 Works on desktop and mobile. On mobile, panels slide up as drawers and controls sit in the thumb zone. Tap any station for ridership detail.
 
@@ -18,16 +18,21 @@ The map has five story chapters, selectable from the top-left panel:
 | **Job hubs vs home zones** | Diverging color scale (blue = residential origin, red = job destination) showing which stations are net sources vs. sinks of passengers |
 | **Passenger flows** | Top 15 origin-destination corridors as arcs — thickness and brightness encode passenger volume |
 | **Weekday vs weekend** | Toggle between Mon–Fri and Sat–Sun patterns to see how the city moves differently |
-| **Coverage gaps** | Population density heatmap overlaid with 500m station catchment rings — red showing through = underserved area |
+| **Coverage gaps** | Population density heatmap overlaid with station catchment rings — red showing through = underserved area |
 
-## Data
+## Data Sources
 
-- **Source:** [BMRCL Station-Wise Ridership Data](https://data.opencity.in/dataset/bmrcl-station-wise-ridership-data) via OpenCity India
-- **Period:** August 2025
-- **Coverage:** 83 stations across Purple, Green, and Yellow lines
-- **Metro geometry:** Real OSM line traces from OpenStreetMap (Overpass API)
+| Dataset | Source | Notes |
+|---|---|---|
+| **Station ridership (hourly)** | [BMRCL Station-Wise Ridership — OpenCity India](https://data.opencity.in/dataset/bmrcl-station-wise-ridership-data) | RTI response, Aug 2025 |
+| **Station ridership (weekday/weekend)** | Same RTI filing via OpenCity India | Aggregated from daily sheets |
+| **Origin-destination flows** | Derived from BMRCL hourly entry/exit data | Estimated using trip-chain heuristics |
+| **Station locations** | [OpenStreetMap](https://www.openstreetmap.org/) | Manually verified against BMRCL map |
+| **Metro line geometry** | Built from station coordinates | Purple, Green, Yellow lines |
+| **Population density grid** | [WorldPop 2020 (100m)](https://www.worldpop.org/) via OpenStreetMap admin boundaries | Resampled to 500m cells |
+| **Base map tiles** | [OpenFreeMap](https://openfreemap.org/) | No API key required |
 
-Raw data files (`hourly_ridership.xlsx`, `hourly_entry_exit.xlsx`) are processed by `scripts/process_bmrcl_data.py` into the JSON files under `public/data/`.
+Raw ridership files (`hourly_ridership.xlsx`, `hourly_entry_exit.xlsx`) are processed by `scripts/process_bmrcl_data.py` into the JSON files under `public/data/`.
 
 ## Running Locally
 
@@ -36,16 +41,11 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173/bangalore-metro/](http://localhost:5173/bangalore-metro/)
+Open [http://localhost:5173/blr-metro/](http://localhost:5173/blr-metro/)
 
 ## Deploying
 
-```bash
-npm run build
-npm run deploy
-```
-
-This builds to `dist/` and pushes to the `gh-pages` branch. The live site updates within a minute.
+Push to `master` — GitHub Actions builds and deploys to the `gh-pages` branch automatically. The live site updates within ~2 minutes.
 
 ## Tech Stack
 
