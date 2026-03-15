@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   // Change this to match your GitHub repository name exactly
-  base: '/bangalore-metro/',
+  base: '/BLR-METRO/',
   build: {
     rollupOptions: {
       output: {
