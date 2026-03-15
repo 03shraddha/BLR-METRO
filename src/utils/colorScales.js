@@ -91,8 +91,8 @@ export const LAYER_LEGENDS = {
   coverageGap: {
     label: 'Population density',
     gradient: 'linear-gradient(to right, rgba(255,255,178,0.3), #bd0026)',
-    minLabel: 'Low density',
-    maxLabel: 'High density',
+    minLabel: 'low density',
+    maxLabel: 'high density',
     note: 'Green rings = 500m metro catchment',
   },
 }

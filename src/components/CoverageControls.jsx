@@ -4,8 +4,8 @@ const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica N
 
 const PRESETS = [
   { label: '5-min walk',        value: 300 },
-  { label: 'Planning standard', value: 500 },
-  { label: 'Extended access',   value: 800 },
+  { label: 'planning standard', value: 500 },
+  { label: 'extended access',   value: 800 },
 ]
 
 export default function CoverageControls({ radius, setRadius, activeLayer, coveragePct }) {
@@ -16,7 +16,7 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
     <div
       className="absolute left-1/2 -translate-x-1/2 z-20"
       style={{
-        bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 32,
+        bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 20,
         width: isMobile ? 'calc(100vw - 32px)' : 'auto',
         minWidth: isMobile ? undefined : 480,
         padding: '18px 28px 16px',
@@ -77,8 +77,8 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
       <div className="flex items-center gap-4">
         {/* "Walking distance" label — hidden on mobile to give slider more room */}
         {!isMobile && (
-          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
-            Walking distance
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', flexShrink: 0 }}>
+            walking distance
           </span>
         )}
         <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>200m</span>

@@ -50,21 +50,21 @@ function SelectedCard({ station, accentColor, onClose, weekday, weekend, hour, a
   if (activeLayer === 'volume' || activeLayer === 'entryExit') {
     const { entries, exits, total } = getRidershipAtHour(station, hour)
     stats = [
-      { label: 'Entries', value: fmtN(entries) },
-      { label: 'Exits',   value: fmtN(exits) },
-      { label: 'Total',   value: fmtN(total) },
+      { label: 'entries', value: fmtN(entries) },
+      { label: 'exits',   value: fmtN(exits) },
+      { label: 'total',   value: fmtN(total) },
     ]
   } else if (activeLayer === 'weekdayWeekend') {
     const wd = getDailyRidership(weekday, props.id)
     const we = getDailyRidership(weekend, props.id)
     stats = [
-      { label: 'Weekday', value: fmtN(wd.total) },
-      { label: 'Weekend', value: fmtN(we.total) },
-      { label: 'Change',  value: wd.total > 0 ? `${Math.round((we.total / wd.total - 1) * 100)}%` : '-' },
+      { label: 'weekday', value: fmtN(wd.total) },
+      { label: 'weekend', value: fmtN(we.total) },
+      { label: 'change',  value: wd.total > 0 ? `${Math.round((we.total / wd.total - 1) * 100)}%` : '-' },
     ]
   } else if (activeLayer === 'coverageGap') {
     const wd = getDailyRidership(weekday, props.id)
-    stats = [{ label: 'Daily riders', value: fmtN(wd.total) }]
+    stats = [{ label: 'daily riders', value: fmtN(wd.total) }]
   }
 
   const type = stationType(station)
@@ -198,7 +198,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
         WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
         background: 'var(--panel-bg)',
         boxShadow: 'var(--panel-shadow-sm)',
-        borderRadius: '16px 16px 0 0',
+        borderRadius: '20px 20px 0 0',
         fontFamily: IOS_FONT,
         display: 'flex',
         flexDirection: 'column',
@@ -218,7 +218,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
         WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
         background: 'var(--panel-bg)',
         boxShadow: 'var(--panel-shadow-sm)',
-        borderRadius: 20,
+        borderRadius: 24,
         fontFamily: IOS_FONT,
         display: 'flex',
         flexDirection: 'column',
@@ -258,7 +258,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
       >
         <div className="flex items-center gap-2.5">
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor, flexShrink: 0 }} />
-          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--text-label)' }}>
             {title}
           </span>
         </div>
@@ -343,7 +343,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
                 flexShrink: 0,
               }} />
               <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: IOS_FONT }}>
-                Loading ridership data…
+                loading ridership data…
               </span>
             </div>
           )}
@@ -356,11 +356,11 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
             >
               <span style={{ width: 20, flexShrink: 0 }} />
               <span style={{ width: 9, flexShrink: 0 }} />
-              <span style={{ flex: 1, fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase' }}>
-                Station
+              <span style={{ flex: 1, fontSize: 10, fontWeight: 600, letterSpacing: '0.02em', color: 'var(--text-label)' }}>
+                station
               </span>
-              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
-                {activeLayer === 'coverageGap' ? 'Daily riders' : activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'delta' ? 'Difference' : 'Daily riders'}
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.02em', color: 'var(--text-label)', flexShrink: 0 }}>
+                {activeLayer === 'coverageGap' ? 'daily riders' : activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'delta' ? 'difference' : 'daily riders'}
               </span>
             </div>
           )}
@@ -369,7 +369,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
           <div className="overflow-y-auto overflow-x-hidden flex-1" style={{ minHeight: 0 }}>
             {filteredRows.length === 0 ? (
               <div style={{ padding: '24px 18px', textAlign: 'center', fontSize: 14, color: 'var(--text-muted)' }}>
-                No results for "{search}"
+                no results for "{search}"
               </div>
             ) : (
               filteredRows.map((row, i) => (
@@ -526,19 +526,20 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
     const totalSystem = sorted.reduce((sum, r) => sum + r.total, 0)
     const topShare    = totalSystem > 0 ? Math.round((top?.total / totalSystem) * 100) : 0
 
-    const hourMood =
-      hour >= 7  && hour <= 10 ? "Bengaluru's suburbs are draining into the centre. Whitefield, Banashankari, Yelahanka, all emptying in sync. This is what a 9 AM commuter tide looks like when you map it." :
-      hour >= 17 && hour <= 20 ? "The city is running in reverse. Every person who flooded in this morning is now flowing back out. The CBD empties, the suburbs refill. Watch the direction flip." :
-      hour >= 21 || hour <= 5  ? "Ghost hours. Bengaluru has gone home. Whatever is still on the network is a night-shift worker, an airport run, or someone who badly miscalculated the traffic." :
-      hour >= 11 && hour <= 14 ? "The lunchtime plateau. Office workers are at their desks, not their seats. The network coasts at maybe 30% of peak capacity. This is what breathing room looks like on a transit system." :
-                                 "The irregular crowd. Late starters, bank errands, doctor appointments, flex workers with no alarm. No commute wave here, just a city doing things at its own pace."
-
     return {
       title:       `Ridership · ${fmtHour(hour)}`,
       accentColor: '#ff8c00',
-      insight:     top?.total > 0
-        ? `${hourMood} ${top.name} is absorbing ${fmtN(top.total)} riders right now. That's ${topShare}% of the top-15 load concentrated at one stop.`
-        : `Nothing moving at ${fmtHour(hour)}. The metro is basically a scheduled ghost train.`,
+      insight: top?.total > 0
+        ? (hour >= 7 && hour <= 10
+          ? `The 9 AM tide. ${top.name} is swallowing ${fmtN(top.total)} people right now. That's ${topShare}% of the city's entire metro load concentrated at one stop.`
+          : hour >= 17 && hour <= 20
+          ? `The city running in reverse. ${top.name} leads the evening surge at ${fmtN(top.total)} riders. Same station, opposite direction.`
+          : hour >= 21 || hour <= 5
+          ? `Ghost hours. ${top.name} has ${fmtN(top.total)} riders. Night shifts, airport runs, and one person who definitely missed the last auto.`
+          : hour >= 11 && hour <= 14
+          ? `Lunchtime. Offices are full, trains are not. ${top.name} at ${fmtN(top.total)} riders — a fraction of the morning peak.`
+          : `Off-peak. ${top.name} absorbs ${fmtN(top.total)} riders at this hour. The city is doing things at its own pace.`)
+        : `Nothing moving at ${fmtHour(hour)}. The metro is a scheduled ghost train.`,
       rows: sorted.map(r => ({
         stationId: r.id,
         label:  r.name,
@@ -572,8 +573,8 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
       title:       `Entry / Exit · ${fmtHour(hour)}`,
       accentColor: '#f87171',
       insight:     top && bottom
-        ? `${top.name} has a ${top.ratio.toFixed(1)}x exit ratio, meaning far more people arriving than leaving. Not a transit stop, an office magnet. ${bottom.name} (${bottom.ratio.toFixed(2)}x) sits at the other end: a pure origin zone where residents leave in the morning and the station stays quiet until evening.`
-        : `Not enough movement at ${fmtHour(hour)} yet to read the pattern.`,
+        ? `${top.name} pulls ${top.ratio.toFixed(1)}x more exits than entries. That's an office magnet, not a metro stop. ${bottom.name} flips it: people leave in the morning and the station goes quiet until evening.`
+        : `Not enough movement at ${fmtHour(hour)} to read the pattern yet.`,
       rows: sorted.map(r => ({
         stationId:  r.id,
         label:      r.name,
@@ -604,7 +605,7 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
       title:       `Top ${topN} flows`,
       accentColor: '#fde047',
       insight:     top
-        ? `${shorten(nameMap[top.from])} to ${shorten(nameMap[top.to])} is the single busiest route: ${fmtN(top.volume)} trips. Think of it as a packed bus that runs all day. The top 3 routes between them handle ${top3share}% of everything shown here. Every other route on this map moves significantly fewer people.`
+        ? `${shorten(nameMap[top.from])} to ${shorten(nameMap[top.to])}: ${fmtN(top.volume)} trips. Think of it as a packed bus that never stops running. The top 3 routes carry ${top3share}% of everything shown here.`
         : 'No flow data.',
       rows: flows.map((f, i) => ({
         label:      `${shorten(nameMap[f.from] || f.from)} → ${shorten(nameMap[f.to] || f.to)}`,
@@ -637,7 +638,7 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
         title:       'Weekday vs Weekend Δ',
         accentColor: '#60a5fa',
         insight:     top
-          ? `Commuter stations that roar on Monday go completely silent on Saturday. Strip away the office gravity and what's left looks like a ghost network. ${top.name} has the starkest split: a ${top.delta > 0 ? '+' : ''}${fmtN(top.delta)}-rider weekly gap that maps almost exactly where Bengaluru goes to clock in.`
+          ? `${top.name} has a ${top.delta > 0 ? '+' : ''}${fmtN(top.delta)}-rider gap between weekday and weekend. Commuter gravity on full display. The moment Friday ends, this station empties.`
           : '',
         rows: sorted.map(r => ({
           stationId:  r.id,
@@ -668,7 +669,7 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
         title:       'Weekday vs Weekend',
         accentColor: '#60a5fa',
         insight:     top
-          ? `${top.name} drops ${shrinkBy}% the moment Friday ends. Not a metro hub, a corporate shuttle stop that happens to have a BMRCL logo. The weekend crowd went to MG Road. Saturday's riders are mostly catching onward autos.`
+          ? `${top.name} drops ${shrinkBy}% the moment Friday ends. Not a transit hub, a corporate shuttle stop. Saturday's crowd went to MG Road instead.`
           : '',
         rows: sorted.map(r => ({
           stationId: r.id,
@@ -703,9 +704,9 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
       insight:     top
         ? isWeekday
           ? hubs > 0
-            ? `${hubs} of the top 15 stations are job-destination hubs — the network is an office-delivery system. ${top.name} leads at ${fmtN(top.total)} daily riders.`
-            : `${top.name} leads at ${fmtN(top.total)} daily riders. The top stations are mostly interchange hubs where people transfer between lines, not single employment destinations. The network is a connector, not a commuter funnel.`
-          : `The weekend rankings show a different city entirely. ${top.name} leads at ${fmtN(top.total)}, but watch which stations climb the list. Leisure geography has replaced commuter geography. Bengaluru on Saturday means brunch, shopping, and an inexplicable trip to Lulu Mall.`
+            ? `${hubs} of the top 15 are job-destination hubs. The metro is an office-delivery machine. ${top.name} leads at ${fmtN(top.total)} daily riders.`
+            : `${top.name} leads at ${fmtN(top.total)} daily riders. These are connectors and interchange hubs, not just office drops. The network links the city together.`
+          : `Weekend rankings, different city. ${top.name} leads at ${fmtN(top.total)}. Watch which stations climb on Saturday. Bengaluru's leisure geography has nothing to do with its commuter map.`
         : '',
       rows: sorted.map(r => ({
         stationId: r.id,
@@ -743,17 +744,17 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
     const coverageKm2 = Math.round(stations.length * Math.PI * (catchmentRadius / 1000) ** 2)
 
     const mood =
-      catchmentRadius <= 350 ? 'A 3-minute walk. Convenient only if you live right next door.' :
-      catchmentRadius <= 550 ? 'The standard 5-minute walk. Most cities plan around this.' :
-      catchmentRadius <= 800 ? 'A 10-minute walk — or a 2-minute auto ride.' :
-                               'A full kilometre. That\'s generous by any city\'s standard.'
+      catchmentRadius <= 350 ? 'A 3-minute walk. Only useful if you live next door.' :
+      catchmentRadius <= 550 ? 'The standard 5-minute walk. What most cities plan around.' :
+      catchmentRadius <= 800 ? 'A 10-minute walk, or a 2-minute auto ride.' :
+                               "A full kilometre. Generous by any city's standard."
 
     const bottom = sorted[0]
 
     return {
       title:       'Least-served stations',
       accentColor: '#34d399',
-      insight:     bottom ? `${mood} Stations ranked by fewest weekday riders — these get the least use despite being on the network.` : '',
+      insight:     bottom ? `${mood} Stations ranked by fewest weekday riders. These stops exist on the network but barely register in the data.` : '',
       rows: sorted.map(r => ({
         stationId:  r.id,
         label:      r.name,

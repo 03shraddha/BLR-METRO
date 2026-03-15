@@ -25,7 +25,7 @@ function buildCoverageNarrative(coveredPct, uncoveredPct, catchmentRadius) {
   if (coveredPct >= 70) {
     return {
       headline: `Only ${uncoveredPct}% of dense Bengaluru lacks metro access.`,
-      sub: `The network is surprisingly comprehensive within ${radiusLabel} — but the remaining gaps are in the densest neighbourhoods where the need is highest.`,
+      sub: `The network is surprisingly comprehensive within ${radiusLabel}, but the remaining gaps are in the densest neighbourhoods where the need is highest.`,
     }
   }
 
@@ -39,14 +39,14 @@ function buildCoverageNarrative(coveredPct, uncoveredPct, catchmentRadius) {
   // 50–69%
   if (catchmentRadius > 500) {
     return {
-      headline: `The metro reaches ${coveredPct}% of where dense Bengaluru lives — at a price.`,
+      headline: `The metro reaches ${coveredPct}% of where dense Bengaluru lives, at a price.`,
       sub: `Stretching the catchment to ${radiusLabel} adds ~${extraKm}km of walking. In a city where auto-rickshaws charge ₹20/km, that's ₹${extraCost} before you board.`,
     }
   }
 
   return {
     headline: `The metro reaches ${coveredPct}% of where dense Bengaluru lives.`,
-    sub: `A city within the city — ${uncoveredPct}% of dense population is more than ${radiusLabel} from any station. Last-mile connectivity determines whether the network truly serves them.`,
+    sub: `A city within the city: ${uncoveredPct}% of dense population is more than ${radiusLabel} from any station. Last-mile connectivity determines whether the network truly serves them.`,
   }
 }
 
@@ -79,7 +79,7 @@ export default function CoverageHeadline({ stations, populationGrid, catchmentRa
     <div
       className="absolute pointer-events-none"
       style={{
-        bottom: 90,
+        bottom: 80,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 25,
@@ -95,8 +95,8 @@ export default function CoverageHeadline({ stations, populationGrid, catchmentRa
           backdropFilter: 'blur(20px) saturate(1.6)',
           WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
           boxShadow: 'var(--panel-shadow-sm)',
-          borderRadius: 14,
-          padding: '12px 20px',
+          borderRadius: 18,
+          padding: '14px 20px',
           textAlign: 'left',
         }}
       >
@@ -111,8 +111,8 @@ export default function CoverageHeadline({ stations, populationGrid, catchmentRa
         </div>
 
         {/* Dynamic catchment radius label — shows what the user has set */}
-        <div style={{ fontSize: 10, color: 'var(--text-label)', marginTop: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-          Catchment radius: {radiusLabel}
+        <div style={{ fontSize: 10, color: 'var(--text-label)', marginTop: 6, letterSpacing: '0.04em' }}>
+          catchment radius: {radiusLabel}
         </div>
       </div>
     </div>

@@ -23,8 +23,8 @@ export default function WeekdayControls({ topN, setTopN, activeLayer }) {
     >
       {/* Label — hidden on mobile to save horizontal space */}
       {!isMobile && (
-        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
-          Stations shown
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', flexShrink: 0 }}>
+          stations shown
         </span>
       )}
 

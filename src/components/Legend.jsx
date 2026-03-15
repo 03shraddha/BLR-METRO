@@ -28,8 +28,8 @@ export default function Legend({ activeLayer, weekdayWeekendMode, catchmentRadiu
       <div
         style={{ ...PANEL_STYLE, ...positionStyle, borderRadius: 18, padding: '16px 20px', minWidth: 200 }}
       >
-        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', marginBottom: 12 }}>
-          Ridership intensity
+        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', marginBottom: 12 }}>
+          ridership intensity
         </p>
         <div className="flex items-center gap-2.5 mb-2.5">
           <div style={{ width: 11, height: 11, borderRadius: '50%', background: 'rgba(59,130,246,0.85)', flexShrink: 0 }} />
@@ -76,7 +76,7 @@ export default function Legend({ activeLayer, weekdayWeekendMode, catchmentRadiu
     <div
       style={{ ...PANEL_STYLE, ...positionStyle, borderRadius: 18, padding: '16px 20px', minWidth: 190 }}
     >
-      <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', marginBottom: 12 }}>
+      <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', marginBottom: 12 }}>
         {title}
       </p>
       <div style={{ height: 5, borderRadius: 4, background: gradient, marginBottom: 8 }} />
@@ -86,7 +86,7 @@ export default function Legend({ activeLayer, weekdayWeekendMode, catchmentRadiu
       </div>
       {(config.note || activeLayer === 'coverageGap') && (
         <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12, paddingTop: 12, borderTop: '0.5px solid var(--border)' }}>
-          {activeLayer === 'coverageGap' ? `Green rings = ${catchmentRadius}m walkable catchment` : config.note}
+          {activeLayer === 'coverageGap' ? `green rings = ${catchmentRadius}m walkable catchment` : config.note}
         </p>
       )}
     </div>

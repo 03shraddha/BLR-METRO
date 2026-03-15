@@ -44,7 +44,8 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
           background: 'var(--panel-bg)',
           boxShadow: 'var(--panel-shadow-sm)',
           fontFamily: IOS_FONT,
-          minWidth: 240,
+          minWidth: 220,
+          borderRadius: 16,
         }}
       >
         {renderLayerList()}
@@ -170,7 +171,7 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
             }}
             className="relative w-full text-left transition-all duration-150 cursor-pointer flex items-center gap-3"
             style={{
-              padding: '13px 20px',
+              padding: '11px 18px',
               borderTop: idx > 0 ? `0.5px solid var(--tab-divider)` : 'none',
               background: (id === '__busy__' ? activeLayer === 'busyness' : activeLayer === id) ? 'var(--tab-active-bg)' : 'transparent',
               outline: 'none',

@@ -4,7 +4,7 @@
 :root {
   /* Light mode (default) */
   --app-bg: #f0f0f5;
-  --panel-bg: rgba(255,255,255,0.92);
+  --panel-bg: rgba(255,255,255,0.75);
   --panel-shadow: 0 4px 32px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.07);
   --panel-shadow-sm: 0 2px 24px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.07);
   --border: rgba(0,0,0,0.08);
@@ -37,7 +37,7 @@
 
 [data-theme="dark"] {
   --app-bg: #0a0a0f;
-  --panel-bg: rgba(18,18,22,0.82);
+  --panel-bg: rgba(18,18,22,0.72);
   --panel-shadow: 0 4px 32px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(255,255,255,0.08);
   --panel-shadow-sm: 0 2px 24px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(255,255,255,0.08);
   --border: rgba(255,255,255,0.08);

@@ -133,8 +133,8 @@ export default function StationPanel({ station, onClose }) {
 
           {/* Sparkline */}
           <div style={{ padding: '18px 20px 0' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 10 }}>
-              Daily ridership pattern
+            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 10 }}>
+              daily ridership pattern
             </p>
             <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H }}>
               {[0.25, 0.5, 0.75].map(f => (
@@ -176,13 +176,13 @@ export default function StationPanel({ station, onClose }) {
           {/* Stats */}
           {station?.ridership && (
             <div style={{ padding: '16px 20px 0' }}>
-              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 10 }}>
-                Daily totals
+              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 10 }}>
+                daily totals
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[
-                  { label: 'Total boardings', value: sparkline.reduce((a, b) => a + b, 0) },
-                  { label: 'Peak hour', value: formatHour(peakHour) },
+                  { label: 'total boardings', value: sparkline.reduce((a, b) => a + b, 0) },
+                  { label: 'peak hour', value: formatHour(peakHour) },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ background: 'var(--stat-bg)', borderRadius: 12, padding: '10px 12px' }}>
                     <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</div>
@@ -197,7 +197,7 @@ export default function StationPanel({ station, onClose }) {
 
           {/* Footer */}
           <div style={{ padding: '16px 20px', borderTop: '0.5px solid var(--station-panel-border)', marginTop: 16 }}>
-            <p style={{ fontSize: 11, color: 'var(--text-micro)', margin: 0 }}>Data: BMRCL August 2025 (RTI)</p>
+            <p style={{ fontSize: 11, color: 'var(--text-micro)', margin: 0 }}>data: BMRCL August 2025 (RTI)</p>
           </div>
 
         </div>{/* end scrollable content */}

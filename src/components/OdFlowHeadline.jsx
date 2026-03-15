@@ -26,14 +26,14 @@ function buildNarrative(odFlows, hour) {
   if (phase.label === 'Morning Rush') {
     return {
       headline: `Bengaluru's suburbs are draining into the centre.`,
-      sub: `${topStation} is the busiest origin right now — ${topVolumeK}k riders. ${top3Pct}% of all flow is concentrated in just 3 corridors.`,
+      sub: `${topStation} is the busiest origin right now, ${topVolumeK}k riders. ${top3Pct}% of all flow is concentrated in just 3 corridors.`,
     }
   }
 
   if (phase.label === 'Evening Rush') {
     return {
       headline: `The tide reverses. Workers are flowing outbound in waves.`,
-      sub: `${topStation} is the busiest corridor — ${topVolumeK}k riders heading out. The same arteries that filled the city are now emptying it.`,
+      sub: `${topStation} is the busiest corridor, ${topVolumeK}k riders heading out. The same arteries that filled the city are now emptying it.`,
     }
   }
 
@@ -41,14 +41,14 @@ function buildNarrative(odFlows, hour) {
     // Find how much volume dropped vs a rough morning-peak proxy: just note relative concentration
     return {
       headline: `The rush subsides. The network finds its breath.`,
-      sub: `${topStation} is still the top corridor but volume is spread thinner — only ${top3Pct}% of flow in the top 3 routes. Errands and meetings, not commutes.`,
+      sub: `${topStation} is still the top corridor but volume is spread thinner. Only ${top3Pct}% of flow in the top 3 routes. Errands and meetings, not commutes.`,
     }
   }
 
   if (phase.label === 'Afternoon Lull') {
     return {
       headline: `The city is between rhythms.`,
-      sub: `${activeCorridors} corridors carry meaningful volume. ${topStation} leads at ${topVolumeK}k — a quieter version of the morning pattern.`,
+      sub: `${activeCorridors} corridors carry meaningful volume. ${topStation} leads at ${topVolumeK}k, a quieter version of the morning pattern.`,
     }
   }
 
@@ -62,7 +62,7 @@ function buildNarrative(odFlows, hour) {
   if (phase.label === 'Early Morning') {
     return {
       headline: `The first wave is building.`,
-      sub: `Early risers and shift workers: ${activeCorridors} corridors active. ${topStation} leads with ${topVolumeK}k — the city hasn't hit its stride yet.`,
+      sub: `Early risers and shift workers: ${activeCorridors} corridors active. ${topStation} leads with ${topVolumeK}k. The city hasn't hit its stride yet.`,
     }
   }
 

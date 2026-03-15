@@ -47,8 +47,8 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
 
       {/* Label — hidden on mobile to save space */}
       {!isMobile && (
-        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
-          Time
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', flexShrink: 0 }}>
+          time
         </span>
       )}
 

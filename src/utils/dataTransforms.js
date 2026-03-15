@@ -151,7 +151,8 @@ export function networkPeakHour(stations) {
 
 // Return busyness level for a station at a given hour relative to its own peak.
 export function getStationBusyness(station, hour) {
-  if (!station.ridership) {
+  // Guard: no ridership at all, or empty object (tier-1 load state)
+  if (!station.ridership || Object.keys(station.ridership).length === 0) {
     return { level: 'unknown', pct: 0, current: 0, peak: 0, peakHour: null, color: '#888', emoji: '⚪', description: 'No data available.' }
   }
 

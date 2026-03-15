@@ -60,8 +60,8 @@ export default function OdFlowControls({ topN, setTopN, activeLayer, odFlows }) 
         <>
           {/* Row 1: label + value */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, minHeight: 44 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
-              Flows shown
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', flexShrink: 0 }}>
+              flows shown
             </span>
             <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,191,36,0.95)', flexShrink: 0 }}>
               {topN}
@@ -83,8 +83,8 @@ export default function OdFlowControls({ topN, setTopN, activeLayer, odFlows }) 
         </>
       ) : (
         <div className="flex items-center gap-5">
-          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
-            Flows shown
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', flexShrink: 0 }}>
+            flows shown
           </span>
           <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,191,36,0.95)', width: 44, textAlign: 'right', flexShrink: 0 }}>
             {topN}
