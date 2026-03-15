@@ -8,10 +8,31 @@ export function d3ColorToRgb(colorStr) {
   return [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])]
 }
 
-// Amber scale for volume layer: low volume = nearly invisible, high = vivid amber
-export function makeVolumeColorScale(maxVolume) {
-  // sqrt scale: dramatic falloff so small stations don't clutter
-  return scalePow().exponent(0.6).domain([0, maxVolume]).range([25, 200]).clamp(true)
+// Quantile-based 4-tier color scale for volume layer.
+// Divides stations into ghost / regular / busy / packed quartiles so that
+// mid-range stations are visually distinct from low-traffic ones.
+// Returns a step function: (ridership) => [r, g, b, a]
+export function makeVolumeColorScale(maxRidership) {
+  // Tier thresholds as fractions of peak ridership
+  const t25 = maxRidership * 0.25
+  const t50 = maxRidership * 0.50
+  const t75 = maxRidership * 0.75
+
+  return function(ridership) {
+    if (ridership < t25) {
+      // ghost: very low opacity, dark warm gray — barely visible
+      return [100, 80, 60, 35]
+    } else if (ridership < t50) {
+      // regular: muted amber-brown — clearly present but not loud
+      return [140, 80, 20, 100]
+    } else if (ridership < t75) {
+      // busy: warm amber — noticeably active
+      return [210, 130, 30, 170]
+    } else {
+      // packed: bright gold-amber — unmistakably high traffic
+      return [255, 185, 40, 240]
+    }
+  }
 }
 
 // sqrt radius scale: large range gives clear visual hierarchy without overplotting
@@ -22,10 +43,10 @@ export function makeRadiusScale(maxVolume) {
 // Diverging RdBu scale for entry/exit ratio
 // ratio > 1 = more exits = job hub = warm (red end)
 // ratio < 1 = more entries = residential = cool (blue end)
-const entryExitScale = scaleDiverging(interpolateRdBu).domain([0.3, 1.0, 3.0])
-
-export function entryExitColor(ratio) {
-  return d3ColorToRgb(entryExitScale(ratio))
+// minRatio/maxRatio are data-driven; defaults match historical observed range
+export function entryExitColor(ratio, minRatio = 0.3, maxRatio = 3.0) {
+  const scale = scaleDiverging(interpolateRdBu).domain([minRatio, 1.0, maxRatio])
+  return d3ColorToRgb(scale(ratio))
 }
 
 // Sequential for heatmap reference

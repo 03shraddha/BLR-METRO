@@ -19,7 +19,8 @@ export function buildVolumeLayers(stations, hour, isActive, maxRidership, isMobi
       .map(x => x.id)
   )
 
-  // Soft ambient glow behind the top-5 busiest hubs
+  // Soft ambient glow behind the top-5 busiest hubs.
+  // Glow hue reflects station role: orange-red for job hubs, blue for residential.
   const glowLayer = new ScatterplotLayer({
     id: 'volume-glow',
     data: stations.filter(d => top5Ids.has(d.properties.id)),
@@ -30,14 +31,22 @@ export function buildVolumeLayers(stations, hour, isActive, maxRidership, isMobi
     },
     getPosition: d => d.geometry.coordinates,
     getRadius: d => radiusScale(getRidershipAtHour(d, hour).total) * 2.0,
-    getFillColor: [255, 150, 30, 12],
+    getFillColor: d => {
+      const { entries, exits } = getRidershipAtHour(d, hour)
+      if (exits > entries * 1.4) return [255, 100, 50, 15]   // job hub → orange-red
+      if (entries > exits * 1.4) return [100, 150, 255, 15]  // residential → blue
+      return [255, 150, 30, 12]                              // balanced → amber
+    },
     radiusUnits: 'meters',
     pickable: false,
     stroked: false,
-    updateTriggers: { getRadius: [hour] },
+    updateTriggers: { getRadius: [hour], getFillColor: [hour] },
   })
 
-  // Main station circles — sqrt-scaled, thin outline for visual separation
+  // Main station circles — sqrt-scaled, thin outline for visual separation.
+  // Fill color encodes TWO dimensions:
+  //   1. Tier (brightness/opacity) via quantile-based scale — ghost/regular/busy/packed
+  //   2. Station role (hue shift) — job hub → orange-red, residential → blue-gold
   const mainLayer = new ScatterplotLayer({
     id: 'volume',
     data: stations,
@@ -50,25 +59,35 @@ export function buildVolumeLayers(stations, hour, isActive, maxRidership, isMobi
     getPosition: d => d.geometry.coordinates,
     getRadius: d => radiusScale(getRidershipAtHour(d, hour).total),
     getFillColor: d => {
-      const a = opacityScale(getRidershipAtHour(d, hour).total)
-      // Interpolate from dark red-orange (low) → bright amber-yellow (high)
-      // so busy stations stand out in color, not just size
-      const t = a / 200
-      return [
-        Math.round(180 + 75 * t),   // 180 → 255
-        Math.round(60 + 130 * t),   // 60  → 190
-        Math.round(0 + 50 * t),     // 0   → 50
-        a,
-      ]
+      const { entries, exits, total } = getRidershipAtHour(d, hour)
+      // Step 1: get tier base color [r, g, b, a]
+      const [r, g, b, a] = opacityScale(total)
+      // Step 2: apply hue shift based on station role
+      if (exits > entries * 1.4) {
+        // Job hub (more exits): shift toward orange-red
+        return [Math.min(255, r + 20), Math.max(0, g - 30), Math.max(0, b - 10), a]
+      }
+      if (entries > exits * 1.4) {
+        // Residential origin (more entries): shift toward blue-gold
+        return [Math.max(0, r - 20), Math.min(255, g + 10), Math.min(255, b + 30), a]
+      }
+      // Balanced/interchange: keep base amber tier color unchanged
+      return [r, g, b, a]
     },
     stroked: true,
-    getLineColor: [255, 200, 80, 50],
+    getLineColor: d => {
+      const { entries, exits } = getRidershipAtHour(d, hour)
+      if (exits > entries * 1.4) return [220, 100, 60, 80]   // job hub → red outline
+      if (entries > exits * 1.4) return [100, 160, 220, 80]  // residential → blue outline
+      return [255, 200, 80, 50]                              // balanced → gold outline
+    },
     lineWidthMinPixels: 0.5 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
     updateTriggers: {
       getRadius: [hour],
       getFillColor: [hour],
+      getLineColor: [hour],
     },
   })
 
