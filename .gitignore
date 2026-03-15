@@ -12,8 +12,8 @@ dist
 dist-ssr
 *.local
 
-# Data files
-data/
+# Data files (only top-level, not public/data)
+/data/
 
 # Editor directories and files
 .vscode/*

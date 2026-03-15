@@ -1,0 +1,2 @@
+# This file intentionally overrides the root .gitignore for the deployed site.
+# All files in the dist/ output (including data/) should be deployed.
