@@ -11,9 +11,9 @@ const PRESETS = [
 function getHeadline(coveredPct, radius) {
   const uncoveredPct = 100 - coveredPct
   const r = radius >= 1000 ? `${(radius / 1000).toFixed(1)}km` : `${radius}m`
-  if (coveredPct >= 70) return { headline: `Only ${uncoveredPct}% of dense Bengaluru lacks metro access.`, sub: `Surprisingly comprehensive within ${r}, but the remaining gaps are in the densest neighbourhoods.` }
-  if (coveredPct < 50)  return { headline: `More than half of dense Bengaluru is beyond metro reach.`, sub: `At a ${r} catchment, ${uncoveredPct}% of where people actually live falls outside the network's promise.` }
-  return { headline: `The metro reaches ${coveredPct}% of where dense Bengaluru lives.`, sub: `${uncoveredPct}% of dense population is more than ${r} from any station.` }
+  if (coveredPct >= 70) return { headline: `only ${uncoveredPct}% of dense Bengaluru lacks metro access.`, sub: `surprisingly comprehensive within ${r}, but the remaining gaps are in the densest neighbourhoods.` }
+  if (coveredPct < 50)  return { headline: `only ${coveredPct}% of dense Bengaluru is within metro reach.`, sub: `at a ${r} catchment, ${uncoveredPct}% of where people actually live falls outside the network's promise.` }
+  return { headline: `the metro reaches ${coveredPct}% of where dense Bengaluru lives.`, sub: `${uncoveredPct}% of dense population is more than ${r} from any station.` }
 }
 
 export default function CoverageControls({ radius, setRadius, activeLayer, coveragePct }) {

@@ -23,7 +23,7 @@ export default function Legend({ activeLayer, weekdayWeekendMode, catchmentRadiu
   const mobileTop = activeLayer === 'weekdayWeekend' ? 120 : 68
   const positionStyle = isMobile
     ? { position: 'fixed', right: 12, top: mobileTop, zIndex: 20 }
-    : { position: 'fixed', right: 16, bottom: 24, zIndex: 20 }
+    : { position: 'fixed', left: 16, bottom: 24, zIndex: 20 }
 
   if (activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'compare') {
     return (
