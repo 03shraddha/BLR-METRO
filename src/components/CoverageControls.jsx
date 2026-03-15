@@ -81,6 +81,7 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
             Walking distance
           </span>
         )}
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>200m</span>
         <input
           type="range"
           min={200}
@@ -91,7 +92,6 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
           className="cursor-pointer"
           style={{ flex: 1, minWidth: 0, height: 44, accentColor: 'rgba(0,200,100,0.9)' }}
         />
-        <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>200m</span>
         <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>1km</span>
       </div>
     </div>

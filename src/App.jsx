@@ -167,7 +167,7 @@ export default function App() {
           {/* Layer story chapter tabs */}
           <LayerTabs
             activeLayer={activeLayer}
-            setActiveLayer={setActiveLayer}
+            setActiveLayer={(layer) => { setActiveLayer(layer); setBusyOpen(false) }}
             toggleTheme={toggleTheme}
             theme={theme}
             onBusyOpen={() => setBusyOpen(true)}
