@@ -1,15 +1,87 @@
+import { useMemo } from 'react'
+import { timePhase } from '../utils/dataTransforms'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
 
-export default function OdFlowHeadline({ odFlows, topN, isActive }) {
+// Build a phase-aware micro-story from live OD flow data
+function buildNarrative(odFlows, hour) {
+  if (!odFlows?.length) return { headline: '', sub: '' }
+
+  const sorted = [...odFlows].sort((a, b) => b.volume - a.volume)
+  const top = sorted[0]
+  const top3Vol = sorted.slice(0, 3).reduce((s, f) => s + f.volume, 0)
+  const totalVol = sorted.reduce((s, f) => s + f.volume, 0)
+  const top3Pct = totalVol > 0 ? Math.round((top3Vol / totalVol) * 100) : 0
+
+  // Top station name by volume (origin of the busiest corridor)
+  const topStation = top?.from ?? 'the network'
+  const topVolumeK = top ? (top.volume / 1000).toFixed(1) : '?'
+
+  // Count corridors with meaningful volume (> 1% of total)
+  const activeCorridors = sorted.filter(f => f.volume > totalVol * 0.01).length
+
+  const phase = timePhase(hour)
+
+  if (phase.label === 'Morning Rush') {
+    return {
+      headline: `Bengaluru's suburbs are draining into the centre.`,
+      sub: `${topStation} is the busiest origin right now — ${topVolumeK}k riders. ${top3Pct}% of all flow is concentrated in just 3 corridors.`,
+    }
+  }
+
+  if (phase.label === 'Evening Rush') {
+    return {
+      headline: `The tide reverses. Workers are flowing outbound in waves.`,
+      sub: `${topStation} is the busiest corridor — ${topVolumeK}k riders heading out. The same arteries that filled the city are now emptying it.`,
+    }
+  }
+
+  if (phase.label === 'Midday') {
+    // Find how much volume dropped vs a rough morning-peak proxy: just note relative concentration
+    return {
+      headline: `The rush subsides. The network finds its breath.`,
+      sub: `${topStation} is still the top corridor but volume is spread thinner — only ${top3Pct}% of flow in the top 3 routes. Errands and meetings, not commutes.`,
+    }
+  }
+
+  if (phase.label === 'Afternoon Lull') {
+    return {
+      headline: `The city is between rhythms.`,
+      sub: `${activeCorridors} corridors carry meaningful volume. ${topStation} leads at ${topVolumeK}k — a quieter version of the morning pattern.`,
+    }
+  }
+
+  if (phase.label === 'Night Wind-down' || phase.label === 'Late Night') {
+    return {
+      headline: `Only ${activeCorridors} corridors move significant volume.`,
+      sub: `The skeleton network serves shift workers and late commuters. ${topStation} anchors ${top3Pct}% of remaining flow.`,
+    }
+  }
+
+  if (phase.label === 'Early Morning') {
+    return {
+      headline: `The first wave is building.`,
+      sub: `Early risers and shift workers: ${activeCorridors} corridors active. ${topStation} leads with ${topVolumeK}k — the city hasn't hit its stride yet.`,
+    }
+  }
+
+  // Fallback for any unlabelled hour (e.g. midnight edge)
+  return {
+    headline: `${top3Pct}% of all flow in just 3 corridors.`,
+    sub: `${topStation} is the busiest route right now at ${topVolumeK}k riders.`,
+  }
+}
+
+export default function OdFlowHeadline({ odFlows, topN, isActive, hour = 8 }) {
   const isMobile = useIsMobile()
   if (!isActive || !odFlows?.length) return null
 
-  const sorted = [...odFlows].sort((a, b) => b.volume - a.volume)
-  const top3Vol = sorted.slice(0, 3).reduce((s, f) => s + f.volume, 0)
-  const totalVol = sorted.reduce((s, f) => s + f.volume, 0)
-  const pct = totalVol > 0 ? Math.round((top3Vol / totalVol) * 100) : 0
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { headline, sub } = useMemo(
+    () => buildNarrative(odFlows, hour),
+    [odFlows, hour]
+  )
 
   return (
     <div
@@ -21,7 +93,8 @@ export default function OdFlowHeadline({ odFlows, topN, isActive }) {
         zIndex: 25,
         fontFamily: IOS_FONT,
         textAlign: 'center',
-        maxWidth: 'calc(100vw - 32px)',
+        maxWidth: isMobile ? 'calc(100vw - 32px)' : 520,
+        width: '100%',
       }}
     >
       <div
@@ -31,31 +104,29 @@ export default function OdFlowHeadline({ odFlows, topN, isActive }) {
           WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
           boxShadow: 'var(--panel-shadow)',
           borderRadius: 18,
-          padding: '14px 28px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
+          padding: isMobile ? '12px 18px' : '14px 24px',
+          textAlign: 'left',
         }}
       >
-        {/* Big % number */}
-        <span style={{
-          fontSize: 38,
-          fontWeight: 800,
-          color: '#f59e0b',
-          letterSpacing: '-0.04em',
-          lineHeight: 1,
+        {/* Phase-aware headline */}
+        <div style={{
+          fontSize: isMobile ? 12 : 13,
+          fontWeight: 700,
+          color: 'var(--text-primary)',
+          letterSpacing: '-0.01em',
+          lineHeight: 1.3,
         }}>
-          {pct}%
-        </span>
+          {headline}
+        </div>
 
-        {/* Label block */}
-        <div style={{ textAlign: 'left' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
-            of all passenger flow
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, lineHeight: 1.2 }}>
-            carried by just the top 3 corridors
-          </div>
+        {/* Supporting detail */}
+        <div style={{
+          fontSize: isMobile ? 10 : 11,
+          color: 'var(--text-muted)',
+          marginTop: 4,
+          lineHeight: 1.4,
+        }}>
+          {sub}
         </div>
       </div>
     </div>

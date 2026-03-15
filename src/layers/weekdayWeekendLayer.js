@@ -53,8 +53,44 @@ export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mod
     pickable: false,
   })
 
-  if (mode === 'delta')   return [buildDeltaLayer(filteredStations, weekdayData, weekendData, isActive, mobileScale), zoneLabels]
-  if (mode === 'compare') return [...buildCompareLayers(filteredStations, weekdayData, weekendData, isActive, mobileScale), zoneLabels]
+  // Top-3 stations by weekend lift (weekend/weekday ratio - 1).
+  // Labels like "MG Road +48%" are shown only when weekend or compare mode is active
+  // so users immediately see which stations surge on weekends.
+  const showLiftLabels = isActive && (mode === 'weekend' || mode === 'compare')
+  const topWeekendLift = [...stations]
+    .filter(s => weekdayData[s.properties.id] && weekendData[s.properties.id])
+    .map(s => ({
+      name: s.properties.name,
+      coords: s.geometry.coordinates,
+      lift: (weekendData[s.properties.id]?.total || 0) /
+            Math.max(weekdayData[s.properties.id]?.total || 1, 1) - 1,
+    }))
+    .sort((a, b) => b.lift - a.lift)
+    .slice(0, 3)
+
+  const liftLabels = new TextLayer({
+    id: 'wdw-lift-labels',
+    data: topWeekendLift,
+    opacity: showLiftLabels ? 1.0 : 0,
+    transitions: { opacity: { duration: 600 } },
+    getPosition: d => d.coords,
+    // e.g. "MG Road +48%"
+    getText: d => `${d.name} +${Math.round(d.lift * 100)}%`,
+    getSize: 12,
+    getColor: [220, 80, 240, 230],   // purple tint matching weekend palette
+    fontWeight: 700,
+    getTextAnchor: 'middle',
+    getAlignmentBaseline: 'top',     // sit just below the station dot
+    getPixelOffset: [0, 14],
+    sizeUnits: 'pixels',
+    sizeMinPixels: 10,
+    sizeMaxPixels: 14,
+    pickable: false,
+    updateTriggers: { opacity: [showLiftLabels] },
+  })
+
+  if (mode === 'delta')   return [buildDeltaLayer(filteredStations, weekdayData, weekendData, isActive, mobileScale), zoneLabels, liftLabels]
+  if (mode === 'compare') return [...buildCompareLayers(filteredStations, weekdayData, weekendData, isActive, mobileScale), zoneLabels, liftLabels]
 
   // ── Single mode (weekday / weekend) ──────────────────────────────────────────
   const data    = mode === 'weekday' ? weekdayData : weekendData
@@ -137,7 +173,8 @@ export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mod
     pickable: false,
   })
 
-  return [haloLayer, ringLayer, dotLayer, zoneLabels]
+  // Omit halo on mobile — three overlapping layers create clutter on small screens
+  return [...(isMobile ? [] : [haloLayer]), ringLayer, dotLayer, zoneLabels, liftLabels]
 }
 
 // ── Delta mode ────────────────────────────────────────────────────────────────
@@ -208,11 +245,11 @@ function buildCompareLayers(stations, weekdayData, weekendData, isActive, mobile
   const wdAlpha  = scaleLinear().domain([0, maxWd]).range([60, 200]).clamp(true)
   const weAlpha  = scaleLinear().domain([0, maxWe]).range([60, 200]).clamp(true)
 
-  // Weekday: solid blue ring, slightly larger
+  // Weekday: blue ring — full opacity so the weekday baseline reads clearly
   const weekdayLayer = new ScatterplotLayer({
     id: 'wdw-compare-weekday',
     data: stations,
-    opacity: isActive ? 1.0 : 0,
+    opacity: isActive ? 0.9 : 0,   // high opacity — weekday is the reference
     transitions: { opacity: { duration: 600 } },
     getPosition:  d => d.geometry.coordinates,
     getRadius:    d => wdRadius(getDailyRidership(weekdayData, d.properties.id).total),
@@ -224,14 +261,15 @@ function buildCompareLayers(stations, weekdayData, weekendData, isActive, mobile
     pickable: true,
   })
 
-  // Weekend: dashed-style purple ring (shorter radius so they can be seen together)
+  // Weekend: purple ring at the SAME radius scale as weekday so sizes are directly
+  // comparable — opacity (0.6) replaces the old 0.78 size shrink, which obscured comparisons.
   const weekendLayer = new ScatterplotLayer({
     id: 'wdw-compare-weekend',
     data: stations,
-    opacity: isActive ? 1.0 : 0,
+    opacity: isActive ? 0.6 : 0,   // lower opacity distinguishes it from weekday ring
     transitions: { opacity: { duration: 600 } },
     getPosition:  d => d.geometry.coordinates,
-    getRadius:    d => weRadius(getDailyRidership(weekendData, d.properties.id).total) * 0.78,
+    getRadius:    d => weRadius(getDailyRidership(weekendData, d.properties.id).total),
     getFillColor: [0, 0, 0, 0],
     stroked: true,
     getLineColor: d => [200, 50, 220, weAlpha(getDailyRidership(weekendData, d.properties.id).total)],

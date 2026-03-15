@@ -12,6 +12,44 @@ function haverDist([lng1, lat1], [lng2, lat2]) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+// Build a contextual narrative depending on how much of the city is covered
+function buildCoverageNarrative(coveredPct, uncoveredPct, catchmentRadius) {
+  const radiusLabel = catchmentRadius >= 1000
+    ? `${(catchmentRadius / 1000).toFixed(1)}km`
+    : `${catchmentRadius}m`
+
+  // Extra walking cost framing — an auto-rickshaw costs roughly ₹20/km
+  const extraKm = ((catchmentRadius - 500) / 1000).toFixed(1)
+  const extraCost = Math.round((catchmentRadius - 500) / 1000 * 20)
+
+  if (coveredPct >= 70) {
+    return {
+      headline: `Only ${uncoveredPct}% of dense Bengaluru lacks metro access.`,
+      sub: `The network is surprisingly comprehensive within ${radiusLabel} — but the remaining gaps are in the densest neighbourhoods where the need is highest.`,
+    }
+  }
+
+  if (coveredPct < 50) {
+    return {
+      headline: `More than half of dense Bengaluru is beyond metro reach.`,
+      sub: `At a ${radiusLabel} catchment, ${uncoveredPct}% of where people actually live falls outside the network's promise. Geography outpaces ambition.`,
+    }
+  }
+
+  // 50–69%
+  if (catchmentRadius > 500) {
+    return {
+      headline: `The metro reaches ${coveredPct}% of where dense Bengaluru lives — at a price.`,
+      sub: `Stretching the catchment to ${radiusLabel} adds ~${extraKm}km of walking. In a city where auto-rickshaws charge ₹20/km, that's ₹${extraCost} before you board.`,
+    }
+  }
+
+  return {
+    headline: `The metro reaches ${coveredPct}% of where dense Bengaluru lives.`,
+    sub: `A city within the city — ${uncoveredPct}% of dense population is more than ${radiusLabel} from any station. Last-mile connectivity determines whether the network truly serves them.`,
+  }
+}
+
 export default function CoverageHeadline({ stations, populationGrid, catchmentRadius, isActive }) {
   const stats = useMemo(() => {
     if (!stations?.length || !populationGrid?.length) return null
@@ -23,16 +61,19 @@ export default function CoverageHeadline({ stations, populationGrid, catchmentRa
       const covered = positions.some(pos => haverDist(pos, cell.position) <= catchmentRadius)
       if (!covered) uncovered += cell.weight
     }
-    return {
-      uncoveredPct: total > 0 ? Math.round((uncovered / total) * 100) : 0,
-      gapCells: populationGrid.filter(cell =>
-        cell.weight >= 0.12 &&
-        !positions.some(pos => haverDist(pos, cell.position) <= catchmentRadius)
-      ).length,
-    }
+    const uncoveredPct = total > 0 ? Math.round((uncovered / total) * 100) : 0
+    const coveredPct = 100 - uncoveredPct
+    return { coveredPct, uncoveredPct }
   }, [stations, populationGrid, catchmentRadius])
 
   if (!isActive || !stats) return null
+
+  const { coveredPct, uncoveredPct } = stats
+  const { headline, sub } = buildCoverageNarrative(coveredPct, uncoveredPct, catchmentRadius)
+
+  const radiusLabel = catchmentRadius >= 1000
+    ? `${(catchmentRadius / 1000).toFixed(1)}km`
+    : `${catchmentRadius}m`
 
   return (
     <div
@@ -44,27 +85,35 @@ export default function CoverageHeadline({ stations, populationGrid, catchmentRa
         zIndex: 25,
         fontFamily: IOS_FONT,
         textAlign: 'center',
+        maxWidth: 'calc(100vw - 32px)',
+        width: 480,
       }}
     >
       <div
         style={{
           background: 'var(--panel-bg)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(20px) saturate(1.6)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
           boxShadow: 'var(--panel-shadow-sm)',
           borderRadius: 14,
-          padding: '10px 20px',
+          padding: '12px 20px',
+          textAlign: 'left',
         }}
       >
-        <span style={{ fontSize: 13, fontWeight: 800, color: '#ef4444', letterSpacing: '-0.02em' }}>
-          {stats.uncoveredPct}%
-        </span>
-        <span style={{ fontSize: 11, color: 'var(--text-secondary)', margin: '0 6px' }}>
-          of dense population lives outside
-        </span>
-        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)' }}>
-          {catchmentRadius}m metro access
-        </span>
+        {/* Main contextual headline */}
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.3 }}>
+          {headline}
+        </div>
+
+        {/* Supporting narrative line */}
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.4 }}>
+          {sub}
+        </div>
+
+        {/* Dynamic catchment radius label — shows what the user has set */}
+        <div style={{ fontSize: 10, color: 'var(--text-label)', marginTop: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Catchment radius: {radiusLabel}
+        </div>
       </div>
     </div>
   )

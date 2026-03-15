@@ -184,6 +184,22 @@ export default function App() {
             odFlows={data?.odFlows}
           />
 
+          {/* Dynamic OD flow narrative headline */}
+          <OdFlowHeadline
+            odFlows={data?.odFlows}
+            topN={odTopN}
+            isActive={activeLayer === 'odFlow'}
+            hour={hour}
+          />
+
+          {/* Dynamic coverage gap narrative headline */}
+          <CoverageHeadline
+            stations={data?.stations}
+            populationGrid={data?.populationGrid}
+            catchmentRadius={catchmentRadius}
+            isActive={activeLayer === 'coverage'}
+          />
+
           {/* Weekday/weekend top-N stations slider */}
           <WeekdayControls
             topN={wdwTopN}

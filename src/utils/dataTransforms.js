@@ -99,3 +99,52 @@ export function findMaxRidership(stations) {
   }
   return max || 1
 }
+
+// Find the peak hour for a station (hour with most total ridership)
+export function peakHour(station) {
+  if (!station.ridership) return 9
+  let maxH = 0, maxT = 0
+  for (let h = 0; h < 24; h++) {
+    const d = station.ridership[String(h)]
+    const t = d ? (d.entries || 0) + (d.exits || 0) : 0
+    if (t > maxT) { maxT = t; maxH = h }
+  }
+  return maxH
+}
+
+// Classify time of day into named phases with human-readable descriptions
+export function timePhase(hour) {
+  if (hour >= 5 && hour <= 7) return { label: 'Early Morning', desc: 'First wave — early risers and shift workers' }
+  if (hour >= 8 && hour <= 10) return { label: 'Morning Rush', desc: 'Peak inbound — suburbs draining toward the centre' }
+  if (hour >= 11 && hour <= 13) return { label: 'Midday', desc: 'Office rhythm — lighter load, errands and meetings' }
+  if (hour >= 14 && hour <= 16) return { label: 'Afternoon Lull', desc: 'The city catches its breath' }
+  if (hour >= 17 && hour <= 19) return { label: 'Evening Rush', desc: 'Reverse tide — the city returns to where it woke up' }
+  if (hour >= 20 && hour <= 22) return { label: 'Night Wind-down', desc: 'Leisure trips, late workers, last trains filling up' }
+  return { label: 'Late Night', desc: 'Skeleton service — essential workers and shift ends' }
+}
+
+// Find top anomalous stations: highest ratio of exits-to-entries at a given hour
+export function findJobHubAnomalies(stations, hour, topN = 3) {
+  return stations
+    .map(s => {
+      const { entries, exits, total } = getRidershipAtHour(s, hour)
+      if (total < 50) return null  // ignore low-volume stations
+      return { name: s.properties.name, ratio: exits / Math.max(entries, 1), total, entries, exits }
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.ratio - a.ratio)
+    .slice(0, topN)
+}
+
+// Compute the network's "centre of gravity" hour — the hour with most total ridership
+export function networkPeakHour(stations) {
+  const totals = Array(24).fill(0)
+  for (const s of stations) {
+    if (!s.ridership) continue
+    for (let h = 0; h < 24; h++) {
+      const d = s.ridership[String(h)]
+      if (d) totals[h] += (d.entries || 0) + (d.exits || 0)
+    }
+  }
+  return totals.indexOf(Math.max(...totals))
+}

@@ -1,4 +1,4 @@
-import { formatHour } from '../utils/dataTransforms'
+import { formatHour, timePhase } from '../utils/dataTransforms'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
@@ -7,6 +7,8 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
   const isMobile = useIsMobile()
   const hourlyLayers = ['volume', 'entryExit']
   if (!hourlyLayers.includes(activeLayer)) return null
+
+  const phase = timePhase(hour)
 
   return (
     <div
@@ -50,13 +52,33 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
         </span>
       )}
 
-      {/* Hour value */}
-      <span
-        className="tabular-nums select-none flex-shrink-0"
-        style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,146,60,0.95)', width: 90, textAlign: 'right' }}
-      >
-        {formatHour(hour)}
-      </span>
+      {/* Hour value + time phase label stacked */}
+      <div className="flex flex-col items-end flex-shrink-0" style={{ width: 90 }}>
+        <span
+          className="tabular-nums select-none"
+          style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,146,60,0.95)', lineHeight: 1 }}
+        >
+          {formatHour(hour)}
+        </span>
+        {/* Phase label — muted, not competing with the time */}
+        <span
+          style={{
+            fontSize: isMobile ? 9 : 10,
+            color: 'var(--text-muted)',
+            letterSpacing: '0.01em',
+            lineHeight: 1.2,
+            marginTop: 2,
+            textAlign: 'right',
+            // Truncate on very narrow displays
+            maxWidth: 90,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {phase.label}
+        </span>
+      </div>
 
       {/* Slider — flex:1 on mobile so it fills available space */}
       <input
