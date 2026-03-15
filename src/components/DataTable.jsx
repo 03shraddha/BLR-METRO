@@ -710,30 +710,25 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
     const coverageKm2 = Math.round(stations.length * Math.PI * (catchmentRadius / 1000) ** 2)
 
     const mood =
-      catchmentRadius <= 250 ? "Three minutes on foot. You'd need the station in your backyard, and knowing Bengaluru traffic, you'd still be late." :
-      catchmentRadius <= 350 ? "Fit-commuter territory. Fast walkers with good shoes and no groceries. Half the city simply does not operate at this pace." :
-      catchmentRadius <= 450 ? "Just under the planning standard. Technically walkable. Practically, most people are already eyeing the nearest auto." :
-      catchmentRadius <= 550 ? "The 500m planning benchmark, roughly 6 minutes at a normal pace. The number every transit planner defends and every Bengalurean quietly ignores." :
-      catchmentRadius <= 700 ? "Getting generous. Most of the neighbourhood technically qualifies. Some of these people are definitely taking an auto and just saying they walked." :
-      catchmentRadius <= 850 ? "Auto-rickshaw range now counts as walkable. Bengaluru rewrites the definition of accessibility one trip at a time." :
-                               "A full kilometre. Half the city calls this nearby. The other half calls an Ola. Both end up at the same station."
+      catchmentRadius <= 350 ? 'A 3-minute walk. Convenient only if you live right next door.' :
+      catchmentRadius <= 550 ? 'The standard 5-minute walk. Most cities plan around this.' :
+      catchmentRadius <= 800 ? 'A 10-minute walk — or a 2-minute auto ride.' :
+                               'A full kilometre. That\'s generous by any city\'s standard.'
 
     const bottom = sorted[0]
 
     return {
       title:       'Least-served stations',
       accentColor: '#34d399',
-      insight:     bottom
-        ? `${mood} At ${catchmentRadius}m, ${overlappingPairs} station pairs share catchment. Rings cover roughly ${coverageKm2} km², tightly overlapping in the core and thinning out fast where the network has not reached yet.`
-        : '',
+      insight:     bottom ? mood : '',
       rows: sorted.map(r => ({
         stationId:  r.id,
         label:      r.name,
         dot:        r.dot,
         value:      fmtN(r.total),
-        sub:        r.total < 1000 ? 'low ridership' : null,
+        sub:        r.total === 0 ? 'no ridership data' : r.total < 300 ? 'very few riders' : null,
         barPct:     0,
-        labelColor: r.total < 1000 ? 'rgba(52,211,153,0.75)' : undefined,
+        labelColor: r.total < 300 ? 'rgba(52,211,153,0.75)' : undefined,
       })),
     }
   }

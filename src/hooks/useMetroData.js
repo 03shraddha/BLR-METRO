@@ -43,19 +43,20 @@ export function useMetroData() {
         })
         setLoading(false) // map is renderable; tier-2 still loading
 
-        // --- Tier 2: deferred analytics data ---
-        const [hourly, weekday, weekend, odFlows, populationGrid] = await Promise.all([
-          fetchJson(`${BASE}data/ridership_hourly.json`),
-          fetchJson(`${BASE}data/ridership_weekday.json`),
-          fetchJson(`${BASE}data/ridership_weekend.json`),
-          fetchJson(`${BASE}data/od_flows.json`),
-          fetchJson(`${BASE}data/population_grid.json`),
-        ])
-
-        // Re-enrich stations now that we have the full hourly dataset
-        const stations = enrichStations(stationsGeo, hourly)
-
-        setData({ stations, stationsGeo, hourly, weekday, weekend, odFlows, populationGrid, metroLines })
+        // --- Tier 2: deferred analytics data (non-fatal — map already usable) ---
+        try {
+          const [hourly, weekday, weekend, odFlows, populationGrid] = await Promise.all([
+            fetchJson(`${BASE}data/ridership_hourly.json`),
+            fetchJson(`${BASE}data/ridership_weekday.json`),
+            fetchJson(`${BASE}data/ridership_weekend.json`),
+            fetchJson(`${BASE}data/od_flows.json`),
+            fetchJson(`${BASE}data/population_grid.json`),
+          ])
+          const stations = enrichStations(stationsGeo, hourly)
+          setData({ stations, stationsGeo, hourly, weekday, weekend, odFlows, populationGrid, metroLines })
+        } catch {
+          // Tier-2 failed (slow connection, timeout) — app stays usable with tier-1 data
+        }
         setPartialLoad(false)
       } catch (err) {
         setError(err.message)
