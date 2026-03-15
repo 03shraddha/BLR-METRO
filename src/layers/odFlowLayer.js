@@ -25,7 +25,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
     .filter(f => posMap[f.from] && posMap[f.to])
     .slice(0, topN)
 
-  if (validFlows.length === 0) return []
+  if (validFlows.length === 0 || !isActive) return []
 
   const maxVol = Math.max(...validFlows.map(f => f.volume), 1)
 
@@ -66,8 +66,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
   const anchorLayer = new ScatterplotLayer({
     id: 'od-anchors',
     data: anchorStations,
-    opacity: isActive ? 1.0 : 0,
-    transitions: { opacity: { duration: 600 } },
+    opacity: 1.0,
     getPosition: d => d.geometry.coordinates,
     // Cap at 400m so dots don't overpower the map on mobile/high-DPI screens
     getRadius: d => Math.min(100 + (flowCount[d.properties.id] || 1) * 55, 400),
@@ -84,8 +83,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
   const corridorArcLayer = new ArcLayer({
     id: 'od-corridors',
     data: corridorFlows,
-    opacity: isActive ? 1.0 : 0,
-    transitions: { opacity: { duration: 600 } },
+    opacity: 1.0,
     getSourcePosition: d => posMap[d.from],
     getTargetPosition: d => posMap[d.to],
     // Source: dark amber (origin)
@@ -110,8 +108,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
   const ghostArcLayer = new ArcLayer({
     id: 'od-flows-ghost',
     data: balancedFlows,
-    opacity: isActive ? 0.25 : 0,
-    transitions: { opacity: { duration: 600 } },
+    opacity: 0.25,
     getSourcePosition: d => posMap[d.from],
     getTargetPosition: d => posMap[d.to],
     // Cooler blue-grey tint distinguishes ghost arcs from the warm primary arcs
@@ -132,8 +129,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
   const regularArcLayer = new ArcLayer({
     id: 'od-flows-rest',
     data: regularFlows,
-    opacity: isActive ? 0.6 : 0,
-    transitions: { opacity: { duration: 600 } },
+    opacity: 0.6,
     getSourcePosition: d => posMap[d.from],
     getTargetPosition: d => posMap[d.to],
     getSourceColor: d => [180, 80, 10, Math.round(opacityScale(d.volume) * 0.35)],
@@ -172,8 +168,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
   const labelLayer = new TextLayer({
     id: 'od-flow-labels',
     data: labelData,
-    opacity: isActive ? 1 : 0,
-    transitions: { opacity: { duration: 600 } },
+    opacity: 1,
     getPosition: d => d.position,
     getText: d => d.text,
     getSize: 13 * mobileScale,
