@@ -16,15 +16,17 @@ export default function Legend({ activeLayer, weekdayWeekendMode, catchmentRadiu
   const config = LAYER_LEGENDS[activeLayer]
   if (!config) return null
 
-  // Push legend up on mobile so it clears the bottom control panels (~80px tall + spacing)
-  // The safe-area inset ensures it also clears notch/home-indicator on iOS devices
-  const bottomOffset = isMobile ? 'calc(100px + env(safe-area-inset-bottom, 0px))' : 24
+  // Always fixed to the viewport — never relative to a parent, never drifts.
+  // Mobile: top-right below the watermark, compact strip.
+  // Desktop: bottom-right corner.
+  const positionStyle = isMobile
+    ? { position: 'fixed', right: 12, top: 68, zIndex: 20 }
+    : { position: 'fixed', right: 16, bottom: 24, zIndex: 20 }
 
   if (activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'compare') {
     return (
       <div
-        className="absolute right-4 z-10"
-        style={{ ...PANEL_STYLE, bottom: bottomOffset, borderRadius: 18, padding: '16px 20px', minWidth: 200 }}
+        style={{ ...PANEL_STYLE, ...positionStyle, borderRadius: 18, padding: '16px 20px', minWidth: 200 }}
       >
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', marginBottom: 12 }}>
           Ridership intensity
@@ -57,10 +59,22 @@ export default function Legend({ activeLayer, weekdayWeekendMode, catchmentRadiu
   const maxLabel = activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'delta' ? 'Weekend' : config.maxLabel
   const title    = activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'delta' ? 'Weekday vs Weekend' : config.label
 
+  // On mobile: compact strip — just the gradient bar + min/max labels, no title
+  if (isMobile) {
+    return (
+      <div style={{ ...PANEL_STYLE, ...positionStyle, borderRadius: 12, padding: '8px 12px', minWidth: 130 }}>
+        <div style={{ height: 4, borderRadius: 3, background: gradient, marginBottom: 5 }} />
+        <div className="flex justify-between">
+          <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{minLabel}</span>
+          <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{maxLabel}</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
-      className="absolute right-4 z-10"
-      style={{ ...PANEL_STYLE, bottom: bottomOffset, borderRadius: 18, padding: '16px 20px', minWidth: 190 }}
+      style={{ ...PANEL_STYLE, ...positionStyle, borderRadius: 18, padding: '16px 20px', minWidth: 190 }}
     >
       <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', marginBottom: 12 }}>
         {title}

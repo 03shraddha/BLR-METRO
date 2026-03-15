@@ -148,3 +148,39 @@ export function networkPeakHour(stations) {
   }
   return totals.indexOf(Math.max(...totals))
 }
+
+// Return busyness level for a station at a given hour relative to its own peak.
+export function getStationBusyness(station, hour) {
+  if (!station.ridership) {
+    return { level: 'unknown', pct: 0, current: 0, peak: 0, peakHour: null, color: '#888', emoji: '⚪', description: 'No data available.' }
+  }
+
+  // Find the station's peak hour and peak ridership value
+  let peak = 0
+  let peakHour = 0
+  for (let h = 0; h < 24; h++) {
+    const d = station.ridership[String(h)]
+    const total = d ? (d.entries || 0) + (d.exits || 0) : 0
+    if (total > peak) { peak = total; peakHour = h }
+  }
+
+  // Get ridership at the requested hour
+  const hData = station.ridership[String(hour)]
+  const current = hData ? (hData.entries || 0) + (hData.exits || 0) : 0
+
+  // Avoid division by zero when a station has all-zero ridership
+  const pct = peak > 0 ? current / peak : 0
+
+  let level, color, emoji, description
+  if (pct >= 0.75) {
+    level = 'packed'; color = '#ef4444'; emoji = '🔴'; description = 'Very crowded. Hard to get a seat.'
+  } else if (pct >= 0.5) {
+    level = 'busy'; color = '#f97316'; emoji = '🟠'; description = 'Busy. Seats available but filling fast.'
+  } else if (pct >= 0.25) {
+    level = 'moderate'; color = '#eab308'; emoji = '🟡'; description = 'Moderate. Good chance of a seat.'
+  } else {
+    level = 'quiet'; color = '#22c55e'; emoji = '🟢'; description = 'Quiet. Plenty of seats.'
+  }
+
+  return { level, pct, current, peak, peakHour, color, emoji, description }
+}

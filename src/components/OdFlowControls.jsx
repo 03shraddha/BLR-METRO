@@ -19,7 +19,7 @@ export default function OdFlowControls({ topN, setTopN, activeLayer, odFlows }) 
     <div
       className="absolute left-1/2 -translate-x-1/2 z-20"
       style={{
-        bottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom, 0px))' : 32,
+        bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 32,
         width: isMobile ? 'calc(100vw - 32px)' : 'auto',
         minWidth: isMobile ? undefined : 420,
         padding: '16px 28px',

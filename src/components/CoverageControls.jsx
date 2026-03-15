@@ -16,7 +16,7 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
     <div
       className="absolute left-1/2 -translate-x-1/2 z-20"
       style={{
-        bottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom, 0px))' : 32,
+        bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 32,
         width: isMobile ? 'calc(100vw - 32px)' : 'auto',
         minWidth: isMobile ? undefined : 480,
         padding: '18px 28px 16px',
@@ -35,7 +35,7 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
             {coveragePct}%
           </span>
           <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 10 }}>
-            of dense population within {radius}m of a metro station
+            of Bengaluru's residents live within a {radius}m walk of a metro station
           </span>
         </div>
       )}

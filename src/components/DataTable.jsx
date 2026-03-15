@@ -153,20 +153,21 @@ function peakHour(station) {
   return peak
 }
 
-export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode, odTopN, catchmentRadius = 500, onStationClick, selectedStation }) {
+export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode, odTopN, catchmentRadius = 500, onStationClick, selectedStation, partialLoad = false }) {
   const [collapsed, setCollapsed] = useState(false)
   const [search, setSearch] = useState('')
   const { isMobile } = useBreakpoint()
   if (!data) return null
 
   const { stations, weekday, weekend, odFlows } = data
-  const config = buildConfig(activeLayer, weekdayWeekendMode, stations, weekday, weekend, odFlows, hour, odTopN, catchmentRadius)
+  const config = buildConfig(activeLayer, weekdayWeekendMode, stations, weekday, weekend, odFlows, hour, odTopN, catchmentRadius, partialLoad)
   if (!config) return null
 
   const { title, insight, rows, accentColor } = config
   const topOffset = activeLayer === 'weekdayWeekend' ? 80 : 16
 
   // Filter rows by search term
+
   const term = search.trim().toLowerCase()
   const filteredRows = term
     ? rows.filter(r => {
@@ -333,6 +334,37 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
             </div>
           </div>
 
+          {/* Loading banner — shown while tier-2 ridership data is still fetching */}
+          {partialLoad && (
+            <div style={{ padding: '8px 18px', borderBottom: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 6, height: 6, borderRadius: '50%', background: 'var(--text-label)',
+                animation: 'pulse 1.4s ease-in-out infinite',
+                flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: IOS_FONT }}>
+                Loading ridership data…
+              </span>
+            </div>
+          )}
+
+          {/* Column header — only shown for layers where value label isn't obvious */}
+          {(activeLayer === 'coverageGap' || activeLayer === 'weekdayWeekend') && (
+            <div
+              className="flex items-center gap-2.5 flex-shrink-0"
+              style={{ padding: '6px 18px', borderBottom: '0.5px solid var(--border)' }}
+            >
+              <span style={{ width: 20, flexShrink: 0 }} />
+              <span style={{ width: 9, flexShrink: 0 }} />
+              <span style={{ flex: 1, fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase' }}>
+                Station
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
+                {activeLayer === 'coverageGap' ? 'Daily riders' : activeLayer === 'weekdayWeekend' && weekdayWeekendMode === 'delta' ? 'Difference' : 'Daily riders'}
+              </span>
+            </div>
+          )}
+
           {/* Rows - scrollable */}
           <div className="overflow-y-auto overflow-x-hidden flex-1" style={{ minHeight: 0 }}>
             {filteredRows.length === 0 ? (
@@ -475,7 +507,7 @@ function haverDist([lon1, lat1], [lon2, lat2]) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hour, odTopN, catchmentRadius = 500) {
+function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hour, odTopN, catchmentRadius = 500, partialLoad = false) {
 
   // ── Volume ──────────────────────────────────────────────────────────────────
   if (activeLayer === 'volume') {
@@ -694,6 +726,7 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
         const { total } = getDailyRidership(weekday, s.properties.id)
         return { id: s.properties.id, name: s.properties.name, dot, total, coords: s.geometry.coordinates }
       })
+      .filter(r => r.total > 0)  // exclude stations with no ridership data
       .sort((a, b) => a.total - b.total)
       .slice(0, 15)
 
@@ -720,13 +753,13 @@ function buildConfig(activeLayer, mode, stations, weekday, weekend, odFlows, hou
     return {
       title:       'Least-served stations',
       accentColor: '#34d399',
-      insight:     bottom ? mood : '',
+      insight:     bottom ? `${mood} Stations ranked by fewest weekday riders — these get the least use despite being on the network.` : '',
       rows: sorted.map(r => ({
         stationId:  r.id,
         label:      r.name,
         dot:        r.dot,
         value:      fmtN(r.total),
-        sub:        r.total === 0 ? 'no ridership data' : r.total < 300 ? 'very few riders' : null,
+        sub:        r.total > 0 && r.total < 300 ? 'very few riders' : null,
         barPct:     0,
         labelColor: r.total < 300 ? 'rgba(52,211,153,0.75)' : undefined,
       })),

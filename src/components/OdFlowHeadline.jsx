@@ -87,7 +87,7 @@ export default function OdFlowHeadline({ odFlows, topN, isActive, hour = 8 }) {
     <div
       className="absolute pointer-events-none"
       style={{
-        bottom: isMobile ? 90 : 110,
+        bottom: isMobile ? 'calc(230px + env(safe-area-inset-bottom, 0px))' : 110,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 25,

@@ -40,7 +40,7 @@ export default function MapContainer({
     if (!mapContainerRef.current || mapRef.current) return
 
     // Pick initial zoom based on screen size so the city fits without needing to pinch-zoom
-    const initialZoom = isMobile ? 10.5 : isTablet ? 11.0 : 11.2
+    const initialZoom = isMobile ? 11.5 : isTablet ? 11.0 : 11.2
 
     // Disable the default compact attribution so we can control it ourselves
     const map = new maplibregl.Map({

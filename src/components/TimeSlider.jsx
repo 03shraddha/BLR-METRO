@@ -14,10 +14,10 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
     <div
       className="absolute left-1/2 -translate-x-1/2 z-20 flex items-center gap-6"
       style={{
-        bottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom, 0px))' : 32,
+        bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 32,
         width: isMobile ? 'calc(100vw - 32px)' : 'auto',
-        minHeight: isMobile ? 56 : undefined,
-        padding: '16px 28px',
+        minHeight: isMobile ? 48 : undefined,
+        padding: isMobile ? '10px 16px' : '16px 28px',
         borderRadius: 32,
         backdropFilter: 'blur(28px) saturate(1.6)',
         WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
@@ -56,7 +56,7 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
       <div className="flex flex-col items-end flex-shrink-0" style={{ width: 90 }}>
         <span
           className="tabular-nums select-none"
-          style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,146,60,0.95)', lineHeight: 1 }}
+          style={{ fontSize: isMobile ? 18 : 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,146,60,0.95)', lineHeight: 1 }}
         >
           {formatHour(hour)}
         </span>

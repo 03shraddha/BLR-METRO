@@ -12,7 +12,7 @@ const LAYERS = [
 
 const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
 
-export default function LayerTabs({ activeLayer, setActiveLayer }) {
+export default function LayerTabs({ activeLayer, setActiveLayer, onBusyOpen }) {
   const { theme, toggleTheme } = useTheme()
   const isMobile = useIsMobile()
 
@@ -150,71 +150,70 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
   )
 
   // Shared list of layer buttons + theme toggle
+  // "How busy is it?" is injected at position 3 (4th item, after Weekday vs weekend)
   function renderLayerList() {
+    const itemStyle = (isActive, idx) => ({
+      position: 'relative',
+      display: 'block',
+      width: '100%',
+      textAlign: 'left',
+      padding: '13px 20px',
+      cursor: 'pointer',
+      background: isActive ? 'var(--tab-active-bg)' : 'transparent',
+      borderTop: idx > 0 ? `0.5px solid var(--tab-divider)` : 'none',
+      borderRight: 'none',
+      borderBottom: 'none',
+      borderLeft: 'none',
+      outline: 'none',
+      fontFamily: IOS_FONT,
+      transition: 'background 150ms ease',
+    })
+
     return (
       <>
         {LAYERS.map(({ id, label, sub }, idx) => (
-          <button
-            key={id}
-            onClick={() => {
-              setActiveLayer(id)
-              // Auto-close after selection on mobile
-              if (isMobile) close()
-            }}
-            className="relative w-full text-left transition-all duration-150 cursor-pointer flex items-center gap-3"
-            style={{
-              padding: '13px 20px',
-              borderTop: idx > 0 ? `0.5px solid var(--tab-divider)` : 'none',
-              background: activeLayer === id ? 'var(--tab-active-bg)' : 'transparent',
-              outline: 'none',
-              border: 'none',
-            }}
-          >
-            {activeLayer === id && (
-              <div
-                className="absolute left-0 top-2.5 bottom-2.5 rounded-full"
-                style={{ width: 3, background: 'var(--tab-active-bar)' }}
-              />
-            )}
-            <div>
-              <span
-                style={{
-                  fontSize: 15,
-                  fontWeight: activeLayer === id ? 600 : 400,
-                  letterSpacing: '-0.01em',
-                  color: activeLayer === id ? 'var(--tab-active-text)' : 'var(--tab-inactive-text)',
-                  display: 'block',
-                  transition: 'color 150ms ease',
-                }}
-              >
+          <>
+            <button
+              key={id}
+              type="button"
+              onClick={() => { setActiveLayer(id); if (isMobile) close() }}
+              style={itemStyle(activeLayer === id, idx)}
+            >
+              {activeLayer === id && (
+                <div style={{ position: 'absolute', left: 0, top: 10, bottom: 10, width: 3, borderRadius: 99, background: 'var(--tab-active-bar)' }} />
+              )}
+              <span style={{ fontSize: 15, fontWeight: activeLayer === id ? 600 : 400, letterSpacing: '-0.01em', color: activeLayer === id ? 'var(--tab-active-text)' : 'var(--tab-inactive-text)', display: 'block' }}>
                 {label}
               </span>
-              <span
-                style={{
-                  fontSize: 11,
-                  color: activeLayer === id ? 'var(--text-muted)' : 'var(--text-micro)',
-                  display: 'block',
-                  marginTop: 1,
-                  transition: 'color 150ms ease',
-                }}
-              >
+              <span style={{ fontSize: 11, color: activeLayer === id ? 'var(--text-muted)' : 'var(--text-micro)', display: 'block', marginTop: 1 }}>
                 {sub}
               </span>
-            </div>
-          </button>
+            </button>
+
+            {/* Inject "How busy is it?" after the 4th layer (index 3 = weekdayWeekend) */}
+            {idx === 3 && onBusyOpen && (
+              <button
+                key="busy"
+                type="button"
+                onClick={() => { onBusyOpen(); if (isMobile) close() }}
+                style={itemStyle(false, 1)}
+              >
+                <span style={{ fontSize: 15, fontWeight: 400, letterSpacing: '-0.01em', color: 'var(--tab-inactive-text)', display: 'block' }}>
+                  How busy is it?
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--text-micro)', display: 'block', marginTop: 1 }}>
+                  Live station crowding
+                </span>
+              </button>
+            )}
+          </>
         ))}
 
         {/* Theme toggle */}
         <button
+          type="button"
           onClick={toggleTheme}
-          className="w-full flex items-center gap-3 cursor-pointer transition-all duration-150"
-          style={{
-            padding: '11px 20px',
-            borderTop: `0.5px solid var(--tab-divider)`,
-            background: 'transparent',
-            outline: 'none',
-            border: 'none',
-          }}
+          style={{ ...itemStyle(false, 1), display: 'flex', alignItems: 'center', gap: 10 }}
         >
           <span style={{ fontSize: 12, lineHeight: 1 }}>{theme === 'dark' ? '☀' : '☾'}</span>
           <span style={{ fontSize: 15, color: 'var(--text-muted)', letterSpacing: '-0.01em' }}>

@@ -7,6 +7,7 @@ import OdFlowControls from './components/OdFlowControls'
 import WeekdayControls from './components/WeekdayControls'
 import CoverageControls from './components/CoverageControls'
 import DataTable from './components/DataTable'
+import BusynessLookup from './components/BusynessLookup'
 import Tooltip from './components/Tooltip'
 import Legend from './components/Legend'
 import StationPanel from './components/StationPanel'
@@ -18,7 +19,7 @@ import { useTheme } from './context/ThemeContext'
 import { useBreakpoint } from './hooks/useBreakpoint'
 
 export default function App() {
-  const { data, loading, error } = useMetroData()
+  const { data, loading, partialLoad, error } = useMetroData()
   const { hour, playing, togglePlay, setHourManual } = useTimeSlider(8)
   const { isMobile } = useBreakpoint()
 
@@ -30,6 +31,7 @@ export default function App() {
   const [tooltipInfo, setTooltipInfo] = useState(null)
   const [selectedStation, setSelectedStation] = useState(null)
   const [zoom, setZoom] = useState(11.2)
+  const [busyOpen, setBusyOpen] = useState(false)
 
   const { theme, toggleTheme } = useTheme()
   const mapStyle = theme === 'dark'
@@ -154,8 +156,22 @@ export default function App() {
             </div>
           )}
 
+          {/* Busyness lookup panel */}
+          <BusynessLookup
+            stations={data?.stations ?? []}
+            hour={hour}
+            isOpen={busyOpen}
+            onClose={() => setBusyOpen(false)}
+          />
+
           {/* Layer story chapter tabs */}
-          <LayerTabs activeLayer={activeLayer} setActiveLayer={setActiveLayer} toggleTheme={toggleTheme} theme={theme} />
+          <LayerTabs
+            activeLayer={activeLayer}
+            setActiveLayer={setActiveLayer}
+            toggleTheme={toggleTheme}
+            theme={theme}
+            onBusyOpen={data?.stations ? () => setBusyOpen(true) : undefined}
+          />
 
           {/* Weekday / weekend / delta / compare sub-toggle */}
           <WeekdayToggle
@@ -174,6 +190,7 @@ export default function App() {
             catchmentRadius={catchmentRadius}
             selectedStation={selectedStation}
             onStationClick={handleStationClick}
+            partialLoad={partialLoad}
           />
 
           {/* OD flow top-N slider + headline stat */}

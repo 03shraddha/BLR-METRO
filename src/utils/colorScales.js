@@ -20,11 +20,11 @@ export function makeVolumeColorScale(maxRidership) {
 
   return function(ridership) {
     if (ridership < t25) {
-      // ghost: very low opacity, dark warm gray — barely visible
-      return [100, 80, 60, 35]
+      // ghost: low-traffic stations — visible but clearly quieter than active ones
+      return [150, 110, 70, 90]
     } else if (ridership < t50) {
       // regular: muted amber-brown — clearly present but not loud
-      return [140, 80, 20, 100]
+      return [160, 90, 25, 140]
     } else if (ridership < t75) {
       // busy: warm amber — noticeably active
       return [210, 130, 30, 170]
