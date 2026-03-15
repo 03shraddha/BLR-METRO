@@ -233,8 +233,8 @@ export default function App() {
           {/* Legend */}
           <Legend activeLayer={activeLayer} weekdayWeekendMode={weekdayWeekendMode} catchmentRadius={catchmentRadius} />
 
-          {/* Hover tooltip */}
-          <Tooltip info={tooltipInfo} hour={hour} />
+          {/* Hover tooltip — desktop only; mobile uses StationPanel drawer */}
+          {!isMobile && <Tooltip info={tooltipInfo} hour={hour} />}
 
           {/* On mobile: StationPanel overlays the map as a drawer */}
           {isMobile && (
