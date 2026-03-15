@@ -21,7 +21,9 @@ const ANNOTATIONS = [
   { position: [77.675, 12.847], text: 'Electronic City:\nno metro coverage', align: 'left' },
 ]
 
-export function buildCoverageGapLayers(stations, populationGrid, isActive, catchmentRadius = 500) {
+export function buildCoverageGapLayers(stations, populationGrid, isActive, catchmentRadius = 500, isMobile = false) {
+  // Slightly thicker catchment ring strokes on mobile for legibility on high-DPI screens
+  const mobileScale = isMobile ? 1.5 : 1
   const stationPositions = stations.map(s => s.geometry.coordinates)
 
   // Split grid cells into covered vs gap
@@ -71,7 +73,7 @@ export function buildCoverageGapLayers(stations, populationGrid, isActive, catch
     stroked: true,
     filled: true,
     radiusUnits: 'meters',
-    lineWidthMinPixels: 1.5,
+    lineWidthMinPixels: 1.5 * mobileScale,
     pickable: false,
   })
 

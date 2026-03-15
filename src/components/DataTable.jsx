@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { getRidershipAtHour, getDailyRidership, buildSparkline, formatHour } from '../utils/dataTransforms'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 const IOS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif"
 
@@ -155,6 +156,7 @@ function peakHour(station) {
 export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode, odTopN, catchmentRadius = 500, onStationClick, selectedStation }) {
   const [collapsed, setCollapsed] = useState(false)
   const [search, setSearch] = useState('')
+  const { isMobile } = useBreakpoint()
   if (!data) return null
 
   const { stations, weekday, weekend, odFlows } = data
@@ -182,22 +184,71 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
 
   const selectedId = selectedStation?.properties?.id
 
-  return (
-    <div
-      className="absolute right-4 z-10 flex flex-col overflow-hidden"
-      style={{
+  // On mobile: fixed bottom drawer; on desktop: absolute right panel
+  const containerStyle = isMobile
+    ? {
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 32,
+        height: collapsed ? 'auto' : 'min(80vh, 500px)',
+        backdropFilter: 'blur(28px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
+        background: 'var(--panel-bg)',
+        boxShadow: 'var(--panel-shadow-sm)',
+        borderRadius: '16px 16px 0 0',
+        fontFamily: IOS_FONT,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        // Slide up from bottom
+        transform: 'translateY(0)',
+      }
+    : {
+        position: 'absolute',
+        right: 16,
+        top: topOffset,
+        zIndex: 10,
+        width: 'calc(100vw - 32px)',
+        maxWidth: 370,
+        maxHeight: 'calc(100vh - 180px)',
         backdropFilter: 'blur(28px) saturate(1.6)',
         WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
         background: 'var(--panel-bg)',
         boxShadow: 'var(--panel-shadow-sm)',
         borderRadius: 20,
-        top: topOffset,
-        width: 'calc(100vw - 32px)',
-        maxWidth: 370,
-        maxHeight: 'calc(100vh - 180px)',
         fontFamily: IOS_FONT,
-      }}
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }
+
+  return (
+    <>
+      {/* Backdrop — mobile only, shown when drawer is expanded */}
+      {isMobile && !collapsed && (
+        <div
+          onClick={() => setCollapsed(true)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 31,
+          }}
+        />
+      )}
+
+    <div
+      style={containerStyle}
     >
+      {/* Drag handle — decorative, mobile only */}
+      {isMobile && (
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8, paddingBottom: 4, flexShrink: 0 }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--text-muted)', opacity: 0.35 }} />
+        </div>
+      )}
+
       {/* Header */}
       <div
         className="flex items-center justify-between cursor-pointer select-none flex-shrink-0"
@@ -305,6 +356,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
         </>
       )}
     </div>
+    </>
   )
 }
 

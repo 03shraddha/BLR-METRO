@@ -4,7 +4,9 @@ import { getRidershipAtHour } from '../utils/dataTransforms'
 import { makeRadiusScale, makeVolumeColorScale } from '../utils/colorScales'
 
 // Returns [glowLayer, mainLayer]
-export function buildVolumeLayers(stations, hour, isActive, maxRidership) {
+export function buildVolumeLayers(stations, hour, isActive, maxRidership, isMobile = false) {
+  // Thicker station outlines on mobile to remain visible on high-DPI screens
+  const mobileScale = isMobile ? 1.5 : 1
   const radiusScale  = makeRadiusScale(maxRidership)
   const opacityScale = makeVolumeColorScale(maxRidership)
 
@@ -61,7 +63,7 @@ export function buildVolumeLayers(stations, hour, isActive, maxRidership) {
     },
     stroked: true,
     getLineColor: [255, 200, 80, 50],
-    lineWidthMinPixels: 0.5,
+    lineWidthMinPixels: 0.5 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
     updateTriggers: {

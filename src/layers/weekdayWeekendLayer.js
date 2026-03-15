@@ -31,7 +31,9 @@ function filterTopN(stations, weekdayData, weekendData, mode, topN) {
     .slice(0, topN)
 }
 
-export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mode, isActive, topN = 50) {
+export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mode, isActive, topN = 50, isMobile = false) {
+  // Scale ring stroke widths up on mobile so thin rings stay visible on high-DPI screens
+  const mobileScale = isMobile ? 1.5 : 1
   const filteredStations = filterTopN(stations, weekdayData, weekendData, mode, topN)
   const zoneLabels = new TextLayer({
     id: 'wdw-zone-labels',
@@ -51,8 +53,8 @@ export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mod
     pickable: false,
   })
 
-  if (mode === 'delta')   return [buildDeltaLayer(filteredStations, weekdayData, weekendData, isActive), zoneLabels]
-  if (mode === 'compare') return [...buildCompareLayers(filteredStations, weekdayData, weekendData, isActive), zoneLabels]
+  if (mode === 'delta')   return [buildDeltaLayer(filteredStations, weekdayData, weekendData, isActive, mobileScale), zoneLabels]
+  if (mode === 'compare') return [...buildCompareLayers(filteredStations, weekdayData, weekendData, isActive, mobileScale), zoneLabels]
 
   // ── Single mode (weekday / weekend) ──────────────────────────────────────────
   const data    = mode === 'weekday' ? weekdayData : weekendData
@@ -114,8 +116,8 @@ export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mod
       const { total } = getDailyRidership(data, d.properties.id)
       return [...palette, ringAlpha(total)]
     },
-    lineWidthMinPixels: 1.5,
-    lineWidthMaxPixels: 3,
+    lineWidthMinPixels: 1.5 * mobileScale,
+    lineWidthMaxPixels: 3 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
     updateTriggers: { getRadius: [mode, topN], getLineColor: [mode, topN] },
@@ -139,7 +141,7 @@ export function buildWeekdayWeekendLayer(stations, weekdayData, weekendData, mod
 }
 
 // ── Delta mode ────────────────────────────────────────────────────────────────
-function buildDeltaLayer(stations, weekdayData, weekendData, isActive) {
+function buildDeltaLayer(stations, weekdayData, weekendData, isActive, mobileScale = 1) {
   let maxAbsDelta = 1
   for (const s of stations) {
     const wd  = getDailyRidership(weekdayData, s.properties.id)
@@ -183,8 +185,8 @@ function buildDeltaLayer(stations, weekdayData, weekendData, isActive) {
       const alpha = alphaScale(Math.abs(delta))
       return t >= 0 ? [30, 100, 220, alpha] : [180, 30, 200, alpha]
     },
-    lineWidthMinPixels: 1.5,
-    lineWidthMaxPixels: 2.5,
+    lineWidthMinPixels: 1.5 * mobileScale,
+    lineWidthMaxPixels: 2.5 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
     updateTriggers: { getRadius: ['delta'], getFillColor: ['delta'], getLineColor: ['delta'] },
@@ -192,7 +194,7 @@ function buildDeltaLayer(stations, weekdayData, weekendData, isActive) {
 }
 
 // ── Compare mode ──────────────────────────────────────────────────────────────
-function buildCompareLayers(stations, weekdayData, weekendData, isActive) {
+function buildCompareLayers(stations, weekdayData, weekendData, isActive, mobileScale = 1) {
   let maxWd = 1, maxWe = 1
   for (const s of stations) {
     const wd = getDailyRidership(weekdayData, s.properties.id)
@@ -217,7 +219,7 @@ function buildCompareLayers(stations, weekdayData, weekendData, isActive) {
     getFillColor: d => [30, 120, 255, Math.round(wdAlpha(getDailyRidership(weekdayData, d.properties.id).total) * 0.2)],
     stroked: true,
     getLineColor: d => [30, 120, 255, wdAlpha(getDailyRidership(weekdayData, d.properties.id).total)],
-    lineWidthMinPixels: 1.5,
+    lineWidthMinPixels: 1.5 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
   })
@@ -233,7 +235,7 @@ function buildCompareLayers(stations, weekdayData, weekendData, isActive) {
     getFillColor: [0, 0, 0, 0],
     stroked: true,
     getLineColor: d => [200, 50, 220, weAlpha(getDailyRidership(weekendData, d.properties.id).total)],
-    lineWidthMinPixels: 1.5,
+    lineWidthMinPixels: 1.5 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
   })

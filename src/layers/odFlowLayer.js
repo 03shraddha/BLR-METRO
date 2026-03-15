@@ -1,7 +1,9 @@
 import { ArcLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers'
 import { scalePow } from 'd3-scale'
 
-export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, topN = 15) {
+export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, topN = 15, isMobile = false) {
+  // Scale factor: make arcs and labels more legible on small high-DPI screens
+  const mobileScale = isMobile ? 1.5 : 1
   const posMap = {}
   const stationMap = {}
   for (const s of stations) {
@@ -61,7 +63,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
     getFillColor: [255, 255, 255, 230],
     stroked: true,
     getLineColor: [255, 190, 50, 180],
-    lineWidthMinPixels: 1.5,
+    lineWidthMinPixels: 1.5 * mobileScale,
     radiusUnits: 'meters',
     pickable: true,
   })
@@ -82,8 +84,8 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
     getWidth: d => widthScale(d.volume),
     getHeight: d => heightScale(d.volume),
     widthUnits: 'pixels',
-    widthMinPixels: 4,
-    widthMaxPixels: 16,
+    widthMinPixels: 4 * mobileScale,
+    widthMaxPixels: 16 * mobileScale,
     greatCircle: false,
     pickable: true,
     updateTriggers: { getSourceColor: [flowOffset], getTargetColor: [flowOffset] },
@@ -102,8 +104,8 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
     getWidth: d => widthScale(d.volume),
     getHeight: d => heightScale(d.volume) * 0.6,
     widthUnits: 'pixels',
-    widthMinPixels: 1,
-    widthMaxPixels: 6,
+    widthMinPixels: 1 * mobileScale,
+    widthMaxPixels: 6 * mobileScale,
     greatCircle: false,
     pickable: true,
     updateTriggers: { getSourceColor: [flowOffset], getTargetColor: [flowOffset] },
@@ -128,7 +130,7 @@ export function buildOdFlowLayer(stations, odFlows, isActive, flowOffset = 0, to
     transitions: { opacity: { duration: 600 } },
     getPosition: d => d.position,
     getText: d => d.text,
-    getSize: 13,
+    getSize: 13 * mobileScale,
     getColor: d => d.rank === 1 ? [255, 230, 80, 240] : [255, 200, 80, 200],
     getAngle: 0,
     getTextAnchor: 'middle',

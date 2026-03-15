@@ -9,6 +9,7 @@ import { buildWeekdayWeekendLayer } from '../layers/weekdayWeekendLayer'
 import { buildCoverageGapLayers } from '../layers/coverageGapLayer'
 import { buildMetroLinesLayer } from '../layers/metroLinesLayer'
 import { useTheme } from '../context/ThemeContext'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 export default function MapContainer({
   data,
@@ -26,6 +27,7 @@ export default function MapContainer({
   mapStyle,
 }) {
   const { theme } = useTheme()
+  const { isMobile, isTablet } = useBreakpoint()
   const mapContainerRef = useRef(null)
   const mapRef          = useRef(null)
   const overlayRef      = useRef(null)
@@ -37,14 +39,31 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
 
+    // Pick initial zoom based on screen size so the city fits without needing to pinch-zoom
+    const initialZoom = isMobile ? 10.5 : isTablet ? 11.0 : 11.2
+
+    // Disable the default compact attribution so we can control it ourselves
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: mapStyle,
       center: [77.5946, 12.9716],
-      zoom: 11.2,
+      zoom: initialZoom,
       pitch: 0,
-      attributionControl: true,
+      attributionControl: false,
     })
+
+    // Compact attribution saves space on mobile; full text fine on desktop
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: isMobile }),
+      'bottom-left'
+    )
+
+    // Navigation controls (zoom +/-) placed bottom-right on mobile (thumb-reachable),
+    // top-right on desktop where the UI panel is not blocking that corner
+    map.addControl(
+      new maplibregl.NavigationControl({ showCompass: false }),
+      isMobile ? 'bottom-right' : 'top-right'
+    )
 
     const overlay = new MapboxOverlay({ interleaved: false, layers: [] })
     map.addControl(overlay)
@@ -109,14 +128,14 @@ export default function MapContainer({
     const { stations, weekday, weekend, odFlows, populationGrid, metroLines } = data
     const isDataActive = true // a data layer is always shown
 
-    const metroLinesLayer = buildMetroLinesLayer(metroLines, isDataActive)
+    const metroLinesLayer = buildMetroLinesLayer(metroLines, isDataActive, isMobile)
 
-    const volumeLayers    = buildVolumeLayers(stations, hour, activeLayer === 'volume', maxRidership)
+    const volumeLayers    = buildVolumeLayers(stations, hour, activeLayer === 'volume', maxRidership, isMobile)
     const entryExitLayer  = buildEntryExitLayer(stations, hour, activeLayer === 'entryExit')
-    const odLayers        = buildOdFlowLayer(stations, odFlows, activeLayer === 'odFlow', flowOffsetRef.current, effectiveTopN)
+    const odLayers        = buildOdFlowLayer(stations, odFlows, activeLayer === 'odFlow', flowOffsetRef.current, effectiveTopN, isMobile)
     // buildWeekdayWeekendLayer now returns an array; flatten with concat
-    const wdwLayers       = [].concat(buildWeekdayWeekendLayer(stations, weekday, weekend, weekdayWeekendMode, activeLayer === 'weekdayWeekend', wdwTopN))
-    const coverageLayers  = buildCoverageGapLayers(stations, populationGrid, activeLayer === 'coverageGap', catchmentRadius)
+    const wdwLayers       = [].concat(buildWeekdayWeekendLayer(stations, weekday, weekend, weekdayWeekendMode, activeLayer === 'weekdayWeekend', wdwTopN, isMobile))
+    const coverageLayers  = buildCoverageGapLayers(stations, populationGrid, activeLayer === 'coverageGap', catchmentRadius, isMobile)
 
     const allLayers = [
       metroLinesLayer,
@@ -135,10 +154,10 @@ export default function MapContainer({
     )
 
     overlayRef.current.setProps({ layers: withCallbacks })
-  }, [data, activeLayer, hour, weekdayWeekendMode, maxRidership, effectiveTopN, wdwTopN, catchmentRadius, onHover, onStationClick])
+  }, [data, activeLayer, hour, weekdayWeekendMode, maxRidership, effectiveTopN, wdwTopN, catchmentRadius, onHover, onStationClick, isMobile])
 
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0" style={{ touchAction: 'manipulation' }}>
       <div ref={mapContainerRef} className="absolute inset-0" />
       {/* Light mode: subtle white veil to push basemap further into background */}
       {theme === 'light' && (

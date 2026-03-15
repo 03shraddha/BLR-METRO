@@ -1,8 +1,11 @@
 import { PathLayer } from '@deck.gl/layers'
 
 // Line data is loaded from public/data/metro_lines.json (real OSM geometry)
-export function buildMetroLinesLayer(metroLines, isAnyDataLayerActive) {
+export function buildMetroLinesLayer(metroLines, isAnyDataLayerActive, isMobile = false) {
   if (!metroLines || metroLines.length === 0) return null
+
+  // On mobile, bump up minimum line width so metro lines stay legible on high-DPI screens
+  const mobileScale = isMobile ? 1.5 : 1
 
   return new PathLayer({
     id: 'metro-lines',
@@ -14,8 +17,8 @@ export function buildMetroLinesLayer(metroLines, isAnyDataLayerActive) {
     getColor: d => [...d.color, 255],
     getWidth: 6,
     widthUnits: 'pixels',
-    widthMinPixels: 3.5,
-    widthMaxPixels: 10,
+    widthMinPixels: 3.5 * mobileScale,
+    widthMaxPixels: 10 * mobileScale,
     capRounded: true,
     jointRounded: true,
     pickable: false,
