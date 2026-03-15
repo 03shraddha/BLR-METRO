@@ -31,10 +31,10 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
       {/* Live coverage stat */}
       {coveragePct != null && (
         <div style={{ textAlign: 'center', marginBottom: 14 }}>
-          <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', color: 'rgba(0,210,100,1)' }}>
+          <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.04em', color: 'rgba(0,210,100,1)' }}>
             {coveragePct}%
           </span>
-          <span style={{ fontSize: 14, color: 'var(--text-secondary)', marginLeft: 10 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 10 }}>
             of dense population within {radius}m of a metro station
           </span>
         </div>
@@ -58,7 +58,7 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
               background: radius === p.value ? 'rgba(0,200,100,0.15)' : 'var(--stat-bg)',
               border: `1px solid ${radius === p.value ? 'rgba(0,200,100,0.55)' : 'var(--border)'}`,
               color: radius === p.value ? 'rgba(0,210,100,1)' : 'var(--text-secondary)',
-              fontSize: isMobile ? 12 : 14,
+              fontSize: isMobile ? 11 : 12,
               fontWeight: radius === p.value ? 700 : 400,
               cursor: 'pointer',
               transition: 'all 150ms ease',
@@ -77,7 +77,7 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
       <div className="flex items-center gap-4">
         {/* "Walking distance" label — hidden on mobile to give slider more room */}
         {!isMobile && (
-          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
             Walking distance
           </span>
         )}
@@ -91,8 +91,8 @@ export default function CoverageControls({ radius, setRadius, activeLayer, cover
           className="cursor-pointer"
           style={{ flex: 1, minWidth: 0, height: 44, accentColor: 'rgba(0,200,100,0.9)' }}
         />
-        <span style={{ fontSize: 13, color: 'var(--text-muted)', flexShrink: 0 }}>200m</span>
-        <span style={{ fontSize: 13, color: 'var(--text-muted)', flexShrink: 0 }}>1km</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>200m</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>1km</span>
       </div>
     </div>
   )

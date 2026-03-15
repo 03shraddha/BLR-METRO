@@ -75,7 +75,7 @@ export default function App() {
         role="alert"
         className="fixed inset-0 flex items-center justify-center bg-[#0a0a0f]"
       >
-        <div className="text-white/60 text-sm text-center px-8">
+        <div className="text-white/60 text-xs text-center px-8">
           <div className="text-2xl mb-3">⚠</div>
           <div>Could not load metro data.</div>
           <div className="text-white/30 text-xs mt-2">{error}</div>
@@ -148,7 +148,7 @@ export default function App() {
               aria-label="Loading metro data"
               className="absolute inset-0 flex items-center justify-center"
             >
-              <div style={{ fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-micro)' }}>
+              <div style={{ fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-micro)' }}>
                 Loading data…
               </div>
             </div>

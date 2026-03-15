@@ -39,7 +39,7 @@ export default function OdFlowHeadline({ odFlows, topN, isActive }) {
       >
         {/* Big % number */}
         <span style={{
-          fontSize: 44,
+          fontSize: 38,
           fontWeight: 800,
           color: '#f59e0b',
           letterSpacing: '-0.04em',
@@ -50,10 +50,10 @@ export default function OdFlowHeadline({ odFlows, topN, isActive }) {
 
         {/* Label block */}
         <div style={{ textAlign: 'left' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
             of all passenger flow
           </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 3, lineHeight: 1.2 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, lineHeight: 1.2 }}>
             carried by just the top 3 corridors
           </div>
         </div>

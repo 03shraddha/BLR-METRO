@@ -23,13 +23,13 @@ export default function WeekdayControls({ topN, setTopN, activeLayer }) {
     >
       {/* Label — hidden on mobile to save horizontal space */}
       {!isMobile && (
-        <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
           Stations shown
         </span>
       )}
 
       {/* Value */}
-      <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(120,160,255,0.95)', width: 52, textAlign: 'right', flexShrink: 0 }}>
+      <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(120,160,255,0.95)', width: 52, textAlign: 'right', flexShrink: 0 }}>
         {topN}
       </span>
 
@@ -48,8 +48,8 @@ export default function WeekdayControls({ topN, setTopN, activeLayer }) {
       {/* Min / Max labels — hidden on mobile to give slider more room */}
       {!isMobile && (
         <div className="flex gap-3 flex-shrink-0">
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>5</span>
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>top 50</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>5</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>top 50</span>
         </div>
       )}
     </div>

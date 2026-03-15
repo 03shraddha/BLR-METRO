@@ -73,7 +73,7 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 20,
+            fontSize: 17,
             backdropFilter: 'blur(28px) saturate(1.6)',
             WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
             background: 'var(--panel-bg)',
@@ -134,7 +134,7 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
               border: 'none',
               background: 'transparent',
               cursor: 'pointer',
-              fontSize: 18,
+              fontSize: 15,
               color: 'var(--text-muted)',
               lineHeight: 1,
               padding: '4px 6px',
@@ -179,7 +179,7 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
             <div>
               <span
                 style={{
-                  fontSize: 17,
+                  fontSize: 15,
                   fontWeight: activeLayer === id ? 600 : 400,
                   letterSpacing: '-0.01em',
                   color: activeLayer === id ? 'var(--tab-active-text)' : 'var(--tab-inactive-text)',
@@ -191,7 +191,7 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
               </span>
               <span
                 style={{
-                  fontSize: 13,
+                  fontSize: 11,
                   color: activeLayer === id ? 'var(--text-muted)' : 'var(--text-micro)',
                   display: 'block',
                   marginTop: 1,
@@ -216,8 +216,8 @@ export default function LayerTabs({ activeLayer, setActiveLayer }) {
             border: 'none',
           }}
         >
-          <span style={{ fontSize: 14, lineHeight: 1 }}>{theme === 'dark' ? '☀' : '☾'}</span>
-          <span style={{ fontSize: 17, color: 'var(--text-muted)', letterSpacing: '-0.01em' }}>
+          <span style={{ fontSize: 12, lineHeight: 1 }}>{theme === 'dark' ? '☀' : '☾'}</span>
+          <span style={{ fontSize: 15, color: 'var(--text-muted)', letterSpacing: '-0.01em' }}>
             {theme === 'dark' ? 'Light mode' : 'Dark mode'}
           </span>
         </button>

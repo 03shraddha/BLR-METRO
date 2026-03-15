@@ -89,11 +89,11 @@ export default function StationPanel({ station, onClose }) {
         <div style={{ padding: '24px 20px 16px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
           <div className="flex items-start justify-between">
             <div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', lineHeight: 1.2, margin: 0 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', lineHeight: 1.2, margin: 0 }}>
                 {props.name || 'Station'}
               </h2>
               {props.line && (
-                <span style={{ fontSize: 13, color: 'var(--text-label)', marginTop: 4, display: 'block' }}>
+                <span style={{ fontSize: 11, color: 'var(--text-label)', marginTop: 4, display: 'block' }}>
                   {capitalize(props.line)} Line
                 </span>
               )}
@@ -167,7 +167,7 @@ export default function StationPanel({ station, onClose }) {
               ))}
             </div>
             {sparkline.length > 0 && (
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 10 }}>
                 Peak: <span style={{ color: 'rgba(251,146,60,0.9)', fontWeight: 600 }}>{formatHour(peakHour)}</span>
               </p>
             )}
@@ -185,8 +185,8 @@ export default function StationPanel({ station, onClose }) {
                   { label: 'Peak hour', value: formatHour(peakHour) },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ background: 'var(--stat-bg)', borderRadius: 12, padding: '10px 12px' }}>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
                       {typeof value === 'number' ? fmt(value) : value}
                     </div>
                   </div>

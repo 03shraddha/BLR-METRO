@@ -45,7 +45,7 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
 
       {/* Label — hidden on mobile to save space */}
       {!isMobile && (
-        <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-label)', textTransform: 'uppercase', flexShrink: 0 }}>
           Time
         </span>
       )}
@@ -53,7 +53,7 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
       {/* Hour value */}
       <span
         className="tabular-nums select-none flex-shrink-0"
-        style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,146,60,0.95)', width: 90, textAlign: 'right' }}
+        style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(251,146,60,0.95)', width: 90, textAlign: 'right' }}
       >
         {formatHour(hour)}
       </span>
@@ -72,8 +72,8 @@ export default function TimeSlider({ hour, playing, togglePlay, setHourManual, a
       {/* Min / Max labels — hidden on mobile to give slider more room */}
       {!isMobile && (
         <div className="flex gap-3 flex-shrink-0">
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>12am</span>
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>11pm</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>12am</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>11pm</span>
         </div>
       )}
     </div>

@@ -56,13 +56,13 @@ export default function CoverageHeadline({ stations, populationGrid, catchmentRa
           padding: '10px 20px',
         }}
       >
-        <span style={{ fontSize: 15, fontWeight: 800, color: '#ef4444', letterSpacing: '-0.02em' }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: '#ef4444', letterSpacing: '-0.02em' }}>
           {stats.uncoveredPct}%
         </span>
-        <span style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 6px' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-secondary)', margin: '0 6px' }}>
           of dense population lives outside
         </span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)' }}>
           {catchmentRadius}m metro access
         </span>
       </div>

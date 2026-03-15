@@ -43,7 +43,7 @@ export default function WeekdayToggle({ mode, setMode, activeLayer }) {
               alignItems: 'center',
               background: isActive ? style.bg : 'transparent',
               color: isActive ? style.text : 'var(--segment-inactive)',
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: isActive ? 600 : 400,
               letterSpacing: '-0.01em',
               boxShadow: isActive ? 'inset 0 0 0 0.5px rgba(255,255,255,0.12)' : 'none',

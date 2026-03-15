@@ -32,7 +32,7 @@ function MiniSparkline({ station, accentColor }) {
           <span key={h} style={{ fontSize: 10, color: 'var(--text-micro)' }}>{formatHour(h)}</span>
         ))}
       </div>
-      <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 6 }}>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
         Peak: <span style={{ color: accentColor, fontWeight: 600 }}>{formatHour(peakH)}</span>
       </div>
     </div>
@@ -76,16 +76,16 @@ function SelectedCard({ station, accentColor, onClose, weekday, weekend, hour, a
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: lineColor, display: 'inline-block', flexShrink: 0 }} />
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+            <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
               {props.name || 'Station'}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             {props.line && (
-              <span style={{ fontSize: 11, color: 'var(--text-label)' }}>{capitalize(props.line)} Line</span>
+              <span style={{ fontSize: 10, color: 'var(--text-label)' }}>{capitalize(props.line)} Line</span>
             )}
             {type && (
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 6px', borderRadius: 5, color: type.color, background: type.color + '22' }}>
+              <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 5, color: type.color, background: type.color + '22' }}>
                 {type.label}
               </span>
             )}
@@ -106,8 +106,8 @@ function SelectedCard({ station, accentColor, onClose, weekday, weekend, hour, a
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${stats.length}, 1fr)`, gap: 8, marginBottom: 10 }}>
           {stats.map(({ label, value }) => (
             <div key={label} style={{ background: 'var(--stat-bg)', borderRadius: 10, padding: '7px 10px' }}>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2 }}>{label}</div>
-              <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }} className="tabular-nums">{value}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>{label}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }} className="tabular-nums">{value}</div>
             </div>
           ))}
         </div>
@@ -257,7 +257,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
       >
         <div className="flex items-center gap-2.5">
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor, flexShrink: 0 }} />
-          <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-label)', textTransform: 'uppercase' }}>
             {title}
           </span>
         </div>
@@ -289,7 +289,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
             />
           ) : insight && (
             <div className="flex-shrink-0" style={{ padding: '12px 18px', borderBottom: '0.5px solid var(--border)' }}>
-              <p style={{ fontSize: 17, lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>{insight}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--text-secondary)', margin: 0 }}>{insight}</p>
             </div>
           )}
 
@@ -315,7 +315,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
                   border: 'none',
                   outline: 'none',
                   flex: 1,
-                  fontSize: 16,
+                  fontSize: 14,
                   color: 'var(--input-text)',
                   fontFamily: IOS_FONT,
                 }}
@@ -336,7 +336,7 @@ export default function DataTable({ data, activeLayer, hour, weekdayWeekendMode,
           {/* Rows - scrollable */}
           <div className="overflow-y-auto overflow-x-hidden flex-1" style={{ minHeight: 0 }}>
             {filteredRows.length === 0 ? (
-              <div style={{ padding: '24px 18px', textAlign: 'center', fontSize: 16, color: 'var(--text-muted)' }}>
+              <div style={{ padding: '24px 18px', textAlign: 'center', fontSize: 14, color: 'var(--text-muted)' }}>
                 No results for "{search}"
               </div>
             ) : (
@@ -392,7 +392,7 @@ function Row({ rank, label, sub, value, value2, barPct, accentColor, labelColor,
       {/* Rank */}
       <span
         className="tabular-nums text-right flex-shrink-0"
-        style={{ fontSize: 14, color: 'var(--text-muted)', width: 20 }}
+        style={{ fontSize: 12, color: 'var(--text-muted)', width: 20 }}
       >
         {rank}
       </span>
@@ -410,7 +410,7 @@ function Row({ rank, label, sub, value, value2, barPct, accentColor, labelColor,
         <div
           className="truncate"
           style={{
-            fontSize: 17,
+            fontSize: 15,
             fontWeight: 500,
             letterSpacing: '-0.01em',
             color: labelColor || 'var(--text-primary)',
@@ -425,7 +425,7 @@ function Row({ rank, label, sub, value, value2, barPct, accentColor, labelColor,
             {badge && (
               <span
                 style={{
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: 600,
                   padding: '2px 7px',
                   borderRadius: 6,
@@ -439,7 +439,7 @@ function Row({ rank, label, sub, value, value2, barPct, accentColor, labelColor,
               </span>
             )}
             {sub && (
-              <span style={{ fontSize: 14, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {sub}
               </span>
             )}
@@ -449,11 +449,11 @@ function Row({ rank, label, sub, value, value2, barPct, accentColor, labelColor,
 
       {/* Value */}
       <div className="flex flex-col items-end flex-shrink-0">
-        <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--text-primary)' }} className="tabular-nums">
+        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--text-primary)' }} className="tabular-nums">
           {value}
         </span>
         {value2 && (
-          <span style={{ fontSize: 14, color: 'var(--text-label)' }} className="tabular-nums">
+          <span style={{ fontSize: 12, color: 'var(--text-label)' }} className="tabular-nums">
             {value2}
           </span>
         )}

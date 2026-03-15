@@ -36,7 +36,7 @@ export default function Tooltip({ info, hour }) {
           maxWidth: 240,
         }}
       >
-        <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {props.name || 'Station'}
         </div>
         {props.line && (
@@ -57,7 +57,7 @@ export default function Tooltip({ info, hour }) {
           </div>
         )}
         {entries !== null && (
-          <div style={{ display: 'flex', gap: 12, fontSize: 13, fontWeight: 500 }}>
+          <div style={{ display: 'flex', gap: 12, fontSize: 11, fontWeight: 500 }}>
             <span style={{ color: 'rgba(147,197,253,0.9)' }}>+{fmt(entries)} in</span>
             <span style={{ color: 'rgba(253,186,116,0.9)' }}>{fmt(exits)} out</span>
           </div>
